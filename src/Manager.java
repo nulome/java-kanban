@@ -60,7 +60,7 @@ public class Manager {
         System.out.println();
     }
 
-    void showTaskToId(Integer key){
+    void showTaskToId(Integer key){                      // показать
         System.out.println(taskMap.get(key));
     }
     void showEpicMapToId(Integer key){
@@ -70,36 +70,50 @@ public class Manager {
         System.out.println(subtaskMap.get(key));
     }
 
-    void creationTask(String name, String description){ // Создание
-        task = new Task(name, description);
+    void creationTask(String name, String description, int status){ // Создание
+        task = new Task(name, description, status);
         this.idTask++;
         taskMap.put(this.idTask, task);
     }
-    void creationEpic(String name, String description){
-        epic = new Epic(name, description);
+    void creationEpic(String name, String description, int status){
+        epic = new Epic(name, description, status);
         this.idEpic++;
         epicMap.put(this.idEpic, epic);
     }
-    void creationSubtask(String name, String description, int idInEpic){
-        subtask = new Subtask(name, description, idInEpic);
+    void creationSubtask(String name, String description, int status, int idInEpic){
+        subtask = new Subtask(name, description, status, idInEpic);
         this.idSubtask++;
         subtaskMap.put(this.idTask, subtask);
         epicMap.get(idInEpic).idSubtask.add(this.idSubtask);
     }
 
-    void updateTaskToId(String name, String description, int id){
-        task = new Task(name, description);
+    void updateTaskToId(String name, String description, int newIsStatus, int id){
+        task = new Task(name, description, newIsStatus);
         taskMap.put(id, task);
     }
 
-    void updateEpicToId(String name, String description, int id){
-        epic = new Epic(name, description);
+    void updateEpicToId(String name, String description, int newIsStatus, int id){
+
+        epic = new Epic(name, description, newIsStatus);
+        statusUpEpic(epic, newIsStatus, id);
         epicMap.put(id, epic);
     }
 
-    void updateSubtaskToId(String name, String description, int id){
-        subtask = new Subtask(name, description, subtaskMap.get(id).idEpic);
+    void updateSubtaskToId(String name, String description, int newIsStatus, int id){
+        subtask = new Subtask(name, description, newIsStatus, subtaskMap.get(id).idEpic);
         taskMap.put(id, subtask);
+        statusUpEpic(epicMap.get(subtask.idEpic), newIsStatus, subtask.idEpic);
+    }
+    void statusUpEpic(Epic epic, int newIsStatus, int id) {
+        if (!epicMap.get(id).idSubtask.isEmpty()) {
+            for (Integer idList : epicMap.get(id).idSubtask) {
+                if (!(subtaskMap.get(idList).NEW && (newIsStatus == 1)) &&
+                        !(subtaskMap.get(idList).DONE && (newIsStatus == 3))) {
+                    epic.updateStatus(2);
+                }
+            }
+            epic.idSubtask = epicMap.get(id).idSubtask;
+        }
     }
 
     void delIdTaskMap(int id) {
@@ -119,5 +133,7 @@ public class Manager {
         ArrayList<Integer> list = epicMap.get(id).idSubtask;
         System.out.println(list);
     }
+
+
 
 }

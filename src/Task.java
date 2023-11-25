@@ -25,10 +25,21 @@ public class Task {
     boolean IN_PROGRESS = false;
     boolean DONE = false;
 
-    public Task(String name, String description) {
+    public Task(String name, String description, int status) {
         this.name = name;
         this.description = description;
-        NEW = true;
+        updateStatus(status);
+    }
+
+    void updateStatus(int status){
+        switch (status){
+            case 1 : NEW = true;
+            break;
+            case 2 : NEW = false; IN_PROGRESS = true;
+            break;
+            case 3 : NEW = false; IN_PROGRESS = false; DONE = true;
+            break;
+        }
     }
 
     @Override

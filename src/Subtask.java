@@ -10,8 +10,8 @@ import java.util.ArrayList;
 public class Subtask extends Task { //подзадачи
 
     int idEpic;
-    public Subtask(String name, String description, int id) {
-        super(name, description);
+    public Subtask(String name, String description, int status, int id) {
+        super(name, description, status);
         idEpic = id;
     }
 
