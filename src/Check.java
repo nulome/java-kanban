@@ -1,20 +1,23 @@
 /*
 Привет!
-- По задачам не проработаны исключения. Практически во всех методах. По ТЗ не было такой задачи. (null)
-- Очень смущает создание пустого эпика или просто задачи. Наверно причина будет понятна дальше по спритам.
+- По задачам не проработаны исключения. Практически во всех методах. По ТЗ не было такого упоминания. (null)
+- Очень смущает создание пустого эпика или просто задачи. Наверно причина будет понятна дальше по спринтам.
 - Тестовые примеры могут ломаться из-за исключений.
-- Добавлял задачи с учетом, что информация будет откуда то поступать, наподобии: ид эпика для связки подзадачи,
+- Добавлял задачи с учетом, что информация будет откуда-то поступать, наподобии: ид эпика для связки подзадачи,
 ид для обновления и установки статусов.
+- Также текст, как в методах, так и в описаниях, только для проверки,
 
 Не нравится:
-- Можно переработать сохранение статуса, чтобы был один статус в виде самого текста (NEW, IN_PROGRESS, DONE),
-но в ТЗ не понятно, как это должно выглядеть в финале.
-- Не добавил обновление списка подзадач в эпике после удаления самой подзадачи.
+- Можно переработать сохранение статуса, чтобы был один статус в виде самого текста, вместо трех булевых (NEW,
+ IN_PROGRESS, DONE), но в ТЗ не понятно, как это должно выглядеть в финале.
+- Не добавил обновление списка подзадач в эпике после удаления самой подзадачи. То есть эпик будет считать,
+ что в нем есть задача, но она уже удалена. Доработаем думаю дальше, пока что не стал уделять время.
 */
 
 public class Check {
     Manager manager = new Manager();
-    void switchMenu(int scan){
+
+    void switchMenu(int scan) {
         switch (scan) {
             case 1:
                 creationAdd();
@@ -53,10 +56,10 @@ public class Check {
                 updateTaskId();
                 break;
             case 13:
-                manager.updateSubtaskToId("Обновление задачи", "Обновление", 2, 1);
+                manager.updateSubtaskToId("Подзадача обнолвена команда 13", "Обновление", 2, 1);
                 break;
             case 14:
-                manager.updateEpicToId("Обновление задачи", "Обновление", 2, 1);
+                manager.updateEpicToId("Обновление задачи команда 14", "Обновление", 2, 1);
                 break;
             case 15:
                 manager.delIdEpicMap(3);
@@ -68,12 +71,26 @@ public class Check {
                 manager.delIdSubtaskMap(3);
                 break;
             case 18:
-                manager.showListEpicToId(2);
+                manager.showListEpicToId(1);
                 break;
+            case 19:
+                System.out.println(manager.epicMap.get(1).printStatus());
+                break;
+            case 20:
+                testUpdateStatusEpic();
+                break;
+            case 21:
+                testUpdateStatusEpicToSubtask();
+                break;
+            case 22:
+                testUpdateStatusSubtaskFive();
+                break;
+
             default:
                 if (scan != 0) System.out.println("Команда не найдена. Повторите");
         }
     }
+
     void printMenu() {
         System.out.println("1 - добавить все задачи по одной");
         System.out.println("2 - показать задачи");
@@ -92,53 +109,99 @@ public class Check {
         System.out.println("15 - удалить эпик по ид");
         System.out.println("16 - удалить задачу по ид");
         System.out.println("17 - удалить подзадачу по ид");
-        System.out.println("18 - показать подзадачи по ид эпик");
+        System.out.println("18 - показать список подзадач по ид эпик");
+        System.out.println("19 - проверка статуса ид 1 эпик");
+        System.out.println("20 - проверка обновления статуса ид 1 эпик");
+        System.out.println("21 - проверка обновления статуса при изменении 1 подзадачи");
+        System.out.println("22 - статус эпика по 5 подзадачам");
 
         System.out.println("0 - выйти");
     }
 
-    void creationAdd(){
+    void creationAdd() {
         manager.creationTask("Задача тест 1", "Описание тест 1", 1);
         manager.creationEpic("Задача тест 1", "Описание тест 1", 1);
         manager.creationSubtask("Задача тест 1", "", 1, manager.idEpic);
         System.out.println("добавлено по 1 задаче");
     }
 
-    void printTaskAll(){
+    void printTaskAll() {
         manager.printListTaskMap();
         manager.printListEpicMap();
         manager.printListSubtaskMap();
     }
-    void addSubtaskToId(){
+
+    void addSubtaskToId() {
         manager.creationSubtask("Добавление подзадачи", "", 1, 1);
         System.out.println("добавлена подзадача к 1 эпику");
     }
-    void addEpicTask(){
-        manager.creationEpic("Задача эпик", "Задача без подзадач", 1);
 
+    void addEpicTask() {
+        manager.creationEpic("Задача эпик", "Задача без подзадач", 1);
+        System.out.println("добавлена задача эпик без подзадач");
     }
-    void addEpic5Subtask(){
+
+    void addEpic5Subtask() {
         manager.creationEpic("Задача эпик", "Описание тест 1", 1);
         manager.creationSubtask("Задача Эпик 5", "", 1, manager.idEpic);
         manager.creationSubtask("Задача Эпик 5", "", 1, manager.idEpic);
         manager.creationSubtask("Задача Эпик 5", "", 1, manager.idEpic);
         manager.creationSubtask("Задача Эпик 5", "", 1, manager.idEpic);
         manager.creationSubtask("Задача Эпик 5", "", 1, manager.idEpic);
-        System.out.println("добавили эпик и 5 задач");
+        System.out.println("добавили эпик и 5 подзадач");
     }
 
-    void printTaskAllId(){
+    void printTaskAllId() {
         int id = 2;
         manager.showTaskToId(id);
         manager.showEpicMapToId(id);
         manager.showSubtaskMapToId(id);
     }
 
-    void updateTaskId(){
+    void updateTaskId() {
         int id = 1;
         manager.updateTaskToId("Обновление задачи", "Обновление", 2, id);
     }
 
+    void testUpdateStatusEpic() {
+        System.out.println(manager.epicMap.get(1).printStatus());
+        manager.updateEpicToId("Обновление задачи", "Обновление статуса на progress", 2, 1);
+        System.out.println(manager.epicMap.get(1).printStatus());
+        manager.updateEpicToId("Обновление задачи", "Обновление статуса на done", 3, 1);
+        System.out.println(manager.epicMap.get(1).printStatus());
+        manager.updateEpicToId("Обновление задачи", "Обновление статуса на new", 1, 1);
+        System.out.println(manager.epicMap.get(1).printStatus());
+    }
+
+    void testUpdateStatusEpicToSubtask() {
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus() + " / ст подзад " + manager.subtaskMap);
+        manager.updateSubtaskToId("Обновление подзадачи ст2", "Обновление", 2, 1);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus() + " / ст подзад " + manager.subtaskMap);
+        manager.updateSubtaskToId("Обновление подзадачи ст3", "Обновление", 3, 1);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus() + " / ст подзад " + manager.subtaskMap);
+        manager.updateSubtaskToId("Обновление подзадачи ст1", "Обновление", 1, 1);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus() + " / ст подзад " + manager.subtaskMap);
+    }
+
+    void testUpdateStatusSubtaskFive() {  // для проверки 5, потом 22
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
+        manager.updateSubtaskToId("Обновление подзадачи 1", "Обновление", 3, 1);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
+        manager.updateSubtaskToId("Обновление подзадачи 2", "Обновление", 3, 2);
+        manager.updateSubtaskToId("Обновление подзадачи 3", "Обновление", 3, 3);
+        printTaskAll();
+        manager.updateSubtaskToId("Обновление подзадачи 4", "Обновление", 3, 4);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
+        manager.updateSubtaskToId("Обновление подзадачи 5", "Обновление", 3, 5);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
+
+        manager.updateSubtaskToId("Обновление подзадачи 1", "Обновление", 1, 1);
+        manager.updateSubtaskToId("Обновление подзадачи 2", "Обновление", 1, 2);
+        manager.updateSubtaskToId("Обновление подзадачи 3", "Обновление", 1, 3);
+        manager.updateSubtaskToId("Обновление подзадачи 4", "Обновление", 1, 4);
+        manager.updateSubtaskToId("Обновление подзадачи 5", "Обновление", 1, 5);
+        System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
+    }
 
 }
 

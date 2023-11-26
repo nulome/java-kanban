@@ -12,15 +12,33 @@ public class Task {
         updateStatus(status);
     }
 
-    void updateStatus(int status){
-        switch (status){
-            case 1 : NEW = true; IN_PROGRESS = false; DONE = false;
-            break;
-            case 2 : NEW = false; IN_PROGRESS = true; DONE = false;
-            break;
-            case 3 : NEW = false; IN_PROGRESS = false; DONE = true;
-            break;
+    void updateStatus(int status) {
+        switch (status) {
+            case 1:
+                NEW = true;
+                IN_PROGRESS = false;
+                DONE = false;
+                break;
+            case 2:
+                NEW = false;
+                IN_PROGRESS = true;
+                DONE = false;
+                break;
+            case 3:
+                NEW = false;
+                IN_PROGRESS = false;
+                DONE = true;
+                break;
         }
+    }
+
+    String printStatus() {
+        if (IN_PROGRESS) {
+            return "IN_PROGRESS";
+        } else if (DONE) {
+            return "DONE";
+        }
+        return "NEW";
     }
 
     @Override

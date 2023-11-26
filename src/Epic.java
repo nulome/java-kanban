@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Epic extends Task {
 
     ArrayList<Integer> idSubtask;
+
     public Epic(String name, String description, int status) {
         super(name, description, status);
         idSubtask = new ArrayList<>();
@@ -15,6 +16,7 @@ public class Epic extends Task {
         return "Epic{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                "status='" + printStatus() +
                 '}';
     }
 }

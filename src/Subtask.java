@@ -12,7 +12,8 @@ public class Subtask extends Task {
 
         return "Subtask{" +
                 "name='" + name + '\'' +
-                "idEpic=" + idEpic +
+                "idEpic=" + idEpic + '\'' +
+                "status='" + printStatus() +
                 '}';
     }
 }
