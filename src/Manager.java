@@ -1,31 +1,6 @@
 
-/*Менеджер
-        Кроме классов для описания задач, вам нужно реализовать класс для объекта-менеджера. Он будет запускаться на
-         старте программы и управлять всеми задачами. В нём должны быть реализованы следующие функции:
-        Возможность хранить задачи всех типов. Для этого вам нужно выбрать подходящую коллекцию.
-        Методы для каждого из типа задач(Задача/Эпик/Подзадача):
-        a. Получение списка всех задач.
-        b. Удаление всех задач.
-        c. Получение по идентификатору.
-        d. Создание. Сам объект должен передаваться в качестве параметра.
-        e. Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
-        f. Удаление по идентификатору.
-        Дополнительные методы:
-        a. Получение списка всех подзадач определённого эпика.
-        Управление статусами осуществляется по следующему правилу:
-        a. Менеджер сам не выбирает статус для задачи. Информация о нём приходит менеджеру вместе с информацией
-         о самой задаче. По этим данным в одних случаях он будет сохранять статус, в других будет рассчитывать.
-
-        b. Для эпиков:
-
-        если у эпика нет подзадач или все они имеют статус NEW, то статус должен быть NEW.
-        если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
-        во всех остальных случаях статус должен быть IN_PROGRESS.*/
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Manager {
     Task task;
@@ -35,7 +10,7 @@ public class Manager {
     HashMap<Integer, Epic> epicMap = new HashMap<>();
     HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
     int idTask, idEpic, idSubtask = 0;
-    Objects objects;
+
 
     void printListTaskMap() {
         System.out.println("Задачи: " + taskMap);
@@ -49,18 +24,21 @@ public class Manager {
 
     void clearListTaskMap() {
         taskMap.clear();
-        System.out.println();
+        this.idTask = 0;
+        System.out.println("Простые задачи удалены");
     }
     void clearListEpicMap() {
         epicMap.clear();
-        System.out.println();
+        this.idEpic = 0;
+        System.out.println("Эпики удалены");
     }
     void clearListSubtaskMap() {
         subtaskMap.clear();
-        System.out.println();
+        this.idSubtask = 0;
+        System.out.println("Подзадачи удалены");
     }
 
-    void showTaskToId(Integer key){                      // показать
+    void showTaskToId(Integer key){
         System.out.println(taskMap.get(key));
     }
     void showEpicMapToId(Integer key){
@@ -70,7 +48,7 @@ public class Manager {
         System.out.println(subtaskMap.get(key));
     }
 
-    void creationTask(String name, String description, int status){ // Создание
+    void creationTask(String name, String description, int status){
         task = new Task(name, description, status);
         this.idTask++;
         taskMap.put(this.idTask, task);
@@ -83,7 +61,7 @@ public class Manager {
     void creationSubtask(String name, String description, int status, int idInEpic){
         subtask = new Subtask(name, description, status, idInEpic);
         this.idSubtask++;
-        subtaskMap.put(this.idTask, subtask);
+        subtaskMap.put(this.idSubtask, subtask);
         epicMap.get(idInEpic).idSubtask.add(this.idSubtask);
     }
 
@@ -118,15 +96,15 @@ public class Manager {
 
     void delIdTaskMap(int id) {
         taskMap.remove(id);
-        System.out.println();
+        System.out.println("Удалена задача " + id);
     }
     void delIdEpicMap(int id) {
         epicMap.remove(id);
-        System.out.println();
+        System.out.println("Удален эпик " + id);
     }
     void delIdSubtaskMap(int id) {
         subtaskMap.remove(id);
-        System.out.println();
+        System.out.println("Удалена подзадача " + id);
     }
 
     void showListEpicToId(int id) {

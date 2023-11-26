@@ -1,7 +1,6 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 
-public class Epic extends Task { // этапы выполнения
+public class Epic extends Task {
 
     ArrayList<Integer> idSubtask;
     public Epic(String name, String description, int status) {
