@@ -14,7 +14,6 @@
 
 public class Check {
     Manager manager = new Manager();
-    int counterAdd = 1;
     void switchMenu(int scan){
         switch (scan) {
             case 1:
@@ -130,9 +129,9 @@ public class Check {
 
     void printTaskAllId(){
         int id = 2;
-        System.out.println(manager.taskMap.get(id));
-        System.out.println(manager.epicMap.get(id));
-        System.out.println(manager.subtaskMap.get(id));
+        manager.showTaskToId(id);
+        manager.showEpicMapToId(id);
+        manager.showSubtaskMapToId(id);
     }
 
     void updateTaskId(){
