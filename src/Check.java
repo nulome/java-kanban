@@ -183,7 +183,7 @@ public class Check {
         System.out.println("статус эпик " + manager.epicMap.get(1).printStatus() + " / ст подзад " + manager.subtaskMap);
     }
 
-    void testUpdateStatusSubtaskFive() {  // для проверки 5, потом 22
+    void testUpdateStatusSubtaskFive() {        // для проверки 5, потом 22
         System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
         manager.updateSubtaskToId("Обновление подзадачи 1", "Обновление", 3, 1);
         System.out.println("статус эпик " + manager.epicMap.get(1).printStatus());
