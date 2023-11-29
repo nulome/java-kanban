@@ -13,6 +13,17 @@ public class Manager {
     private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
     private int newId = 0;
 
+    public HashMap<Integer, Task> getTaskMap() {
+        return taskMap;
+    }
+
+    public HashMap<Integer, Epic> getEpicMap() {
+        return epicMap;
+    }
+
+    public HashMap<Integer, Subtask> getSubtaskMap() {
+        return subtaskMap;
+    }
 
     public ArrayList<Integer> gettingListTask() {
         ArrayList<Integer> listIds = new ArrayList<>();
@@ -44,11 +55,23 @@ public class Manager {
     }
 
     public void clearEpicMap() {
-        epicMap.clear();
+        ArrayList<Integer> listIds = new ArrayList<>();
+        for(Integer key : epicMap.keySet()){
+            listIds.add(key);
+        }
+        for (Integer key : listIds) {
+            delIdEpicMap(key);
+        }
     }
 
     public void clearSubtaskMap() {
-        subtaskMap.clear();
+        ArrayList<Integer> listIds = new ArrayList<>();
+        for(Integer key : subtaskMap.keySet()){
+            listIds.add(key);
+        }
+        for (Integer key : listIds) {
+            delIdSubtaskMap(key);
+        }
     }
 
     public Task getTaskById(Integer key) {
@@ -85,6 +108,8 @@ public class Manager {
         ArrayList<Integer> list = epicMap.get(subtask.getEpicId()).getListSubtaskId();
         list.add(subtask.getUniqueId());
         epicMap.get(subtask.getEpicId()).setListSubtaskId(list);
+
+        updateStatusEpic(epicMap.get(subtask.getEpicId()));
         return subtask.getUniqueId();
     }
 
@@ -140,7 +165,14 @@ public class Manager {
 
     public void delIdSubtaskMap(int id) {
         ArrayList<Integer> list = epicMap.get(subtaskMap.get(id).getEpicId()).getListSubtaskId();
-        list.remove(id);
+        int key = 0;
+        for (Integer i : list) {
+            if(i == id){
+                break;
+            }
+            key++;
+        }
+        list.remove(key);
         epicMap.get(subtaskMap.get(id).getEpicId()).setListSubtaskId(list);
         subtaskMap.remove(id);
     }
