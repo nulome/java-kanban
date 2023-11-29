@@ -31,7 +31,6 @@ public class Manager {
             listIds.add(task.getUniqueId());
         }
         return listIds;
-
     }
 
     public ArrayList<Integer> gettingListEpic() {
@@ -108,7 +107,6 @@ public class Manager {
         ArrayList<Integer> list = epicMap.get(subtask.getEpicId()).getListSubtaskId();
         list.add(subtask.getUniqueId());
         epicMap.get(subtask.getEpicId()).setListSubtaskId(list);
-
         updateStatusEpic(epicMap.get(subtask.getEpicId()));
         return subtask.getUniqueId();
     }

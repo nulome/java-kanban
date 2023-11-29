@@ -10,7 +10,6 @@ import ru.application.tasktracking.objects.Task;
     оставил комментарии тут для удобства, не стал удалять.
 */
 
-
 public class Main {
 
     public static void main(String[] args) {
@@ -53,7 +52,6 @@ public class Main {
 
 
         // Удаление
-
         // -- удаление эпиков. Вместе с ними удаляются связанные подзадачи.
         /*
         manager.clearEpicMap();
