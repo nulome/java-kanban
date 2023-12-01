@@ -36,12 +36,11 @@ public class Manager {
     }
 
     public void clearSubtaskMap() {
-        subtaskMap.clear();
-        if (!epicMap.isEmpty()) {
-            for (Epic epic : epicMap.values()) {
-                updateStatusEpic(epic);
-            }
+        for (Epic epic : epicMap.values()) {
+            epic.setListSubtaskId(new ArrayList<>());
+            updateStatusEpic(epic);
         }
+        subtaskMap.clear();
     }
 
     public Task getTaskById(Integer key) {
@@ -75,10 +74,12 @@ public class Manager {
         subtask.setUniqueId(newId);
         subtaskMap.put(subtask.getUniqueId(), subtask);
 
-        ArrayList<Integer> subtaskIds = epicMap.get(subtask.getEpicId()).getListSubtaskId();
+        Epic updateEpic = epicMap.get(subtask.getEpicId());
+        ArrayList<Integer> subtaskIds = updateEpic.getListSubtaskId();
         subtaskIds.add(subtask.getUniqueId());
-        epicMap.get(subtask.getEpicId()).setListSubtaskId(subtaskIds);
-        updateStatusEpic(epicMap.get(subtask.getEpicId()));
+        updateEpic.setListSubtaskId(subtaskIds);
+
+        updateStatusEpic(updateEpic);
         return subtask.getUniqueId();
     }
 
@@ -125,27 +126,22 @@ public class Manager {
     }
 
     public void delIdEpicMap(int id) {
-        if (!epicMap.get(id).getListSubtaskId().isEmpty()) {
-            for (Integer idList : epicMap.get(id).getListSubtaskId()) {
-                subtaskMap.remove(idList);
-            }
+        for (Integer idList : epicMap.get(id).getListSubtaskId()) {
+            subtaskMap.remove(idList);
         }
         epicMap.remove(id);
     }
 
     public void delIdSubtaskMap(int id) {
-        ArrayList<Integer> newListIds = epicMap.get(subtaskMap.get(id).getEpicId()).getListSubtaskId();
-        int key = 0;
-        for (Integer i : newListIds) {
-            if (i == id) {
-                break;
-            }
-            key++;
-        }
-        newListIds.remove(key);
-        epicMap.get(subtaskMap.get(id).getEpicId()).setListSubtaskId(newListIds);
-        updateStatusEpic(epicMap.get(subtaskMap.get(id).getEpicId()));
-        subtaskMap.remove(id);
+        Subtask subtask = subtaskMap.remove(id);
+        if (subtask == null) return;
+
+        Epic updateEpic = epicMap.get(subtask.getEpicId());
+        ArrayList<Integer> listIds = updateEpic.getListSubtaskId();
+
+        listIds.remove((Integer) id);
+        // Разобрался. При передаче int мы чистили бы по индексу, поэтому цикл придумывал, а при передачи обёртки чистим по значениям.
+        updateStatusEpic(updateEpic);
     }
 
 

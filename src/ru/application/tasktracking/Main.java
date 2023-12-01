@@ -5,10 +5,6 @@ import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
 
-/*
-Вроде теперь понял. Ранее думал, что у нас могут быть пустые задачи эпик с разными статусами.
-
-*/
 
 public class Main {
 
@@ -17,6 +13,7 @@ public class Main {
         Manager manager = new Manager();
 
         // Создание
+        System.out.println("Создание");
 
         Epic epic1 = new Epic("Epic #1", "Epic description", "NEW");
         Epic epic2 = new Epic("Epic #2", "Epic description", "NEW");
@@ -31,6 +28,9 @@ public class Main {
         int sub3 = manager.creationSubtask(subtask3);
         System.out.println("подзадачи - " + manager.getSubtasks());
         System.out.println("эпики - " + manager.getEpics());
+        System.out.println("подз. эпик1 - " + manager.subtasksListToEpic(epicId1));
+        System.out.println("подз. эпик2 - " + manager.subtasksListToEpic(epicId2));
+        System.out.println();
 
         Task task1 = new Task("Task #1", "Task description", "NEW");
         int taskId1 = manager.creationTask(task1);
@@ -38,6 +38,7 @@ public class Main {
         System.out.println();
 
         // Обновление
+        System.out.println("Обновление");
 
         subtask1.setStatus("DONE");
         subtask1.setUniqueId(sub1);
@@ -50,10 +51,12 @@ public class Main {
         System.out.println();
 
         // Удаление
+        System.out.println("Удаление");
 
         manager.delIdEpicMap(epicId2);
         System.out.println("эпики - " + manager.getEpics());
         System.out.println("подзадачи - " + manager.getSubtasks());
+        manager.delIdSubtaskMap(sub1);
         manager.delIdSubtaskMap(sub1);
         System.out.println("эпики - " + manager.getEpics());
         System.out.println("подзадачи - " + manager.getSubtasks());
