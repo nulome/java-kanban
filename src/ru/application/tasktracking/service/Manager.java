@@ -138,9 +138,8 @@ public class Manager {
 
         Epic updateEpic = epicMap.get(subtask.getEpicId());
         ArrayList<Integer> listIds = updateEpic.getListSubtaskId();
-
         listIds.remove((Integer) id);
-        // Разобрался. При передаче int мы чистили бы по индексу, поэтому цикл придумывал, а при передачи обёртки чистим по значениям.
+
         updateStatusEpic(updateEpic);
     }
 
