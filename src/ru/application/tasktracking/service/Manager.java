@@ -134,7 +134,9 @@ public class Manager {
 
     public void delIdSubtaskMap(int id) {
         Subtask subtask = subtaskMap.remove(id);
-        if (subtask == null) return;
+        if (subtask == null) {
+            return;
+        }
 
         Epic updateEpic = epicMap.get(subtask.getEpicId());
         ArrayList<Integer> listIds = updateEpic.getListSubtaskId();
