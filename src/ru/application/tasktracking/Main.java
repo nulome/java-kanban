@@ -15,14 +15,14 @@ public class Main {
         // Создание
         System.out.println("Создание");
 
-        Epic epic1 = new Epic("Epic #1", "Epic description", "NEW");
-        Epic epic2 = new Epic("Epic #2", "Epic description", "NEW");
+        Epic epic1 = new Epic("Epic #epicId1", "Epic description", "NEW");
+        Epic epic2 = new Epic("Epic #epicId2", "Epic description", "NEW");
         int epicId1 = inMemoryTaskManager.creationEpic(epic1);
         int epicId2 = inMemoryTaskManager.creationEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Subtask #1", "Subtask description", "NEW", epicId1);
-        Subtask subtask2 = new Subtask("Subtask #2", "Subtask description", "NEW", epicId1);
-        Subtask subtask3 = new Subtask("Subtask #3", "Subtask description", "NEW", epicId2);
+        Subtask subtask1 = new Subtask("Subtask #sub1", "Subtask description", "NEW", epicId1);
+        Subtask subtask2 = new Subtask("Subtask #sub2", "Subtask description", "NEW", epicId1);
+        Subtask subtask3 = new Subtask("Subtask #sub3", "Subtask description", "NEW", epicId2);
         int sub1 = inMemoryTaskManager.creationSubtask(subtask1);
         int sub2 = inMemoryTaskManager.creationSubtask(subtask2);
         int sub3 = inMemoryTaskManager.creationSubtask(subtask3);
@@ -32,11 +32,23 @@ public class Main {
         System.out.println("подз. эпик2 - " + inMemoryTaskManager.subtasksListToEpic(epicId2));
         System.out.println();
 
-        Task task1 = new Task("Task #1", "Task description", "NEW");
+        Task task1 = new Task("Task #taskId1", "Task description", "NEW");
         int taskId1 = inMemoryTaskManager.creationTask(task1);
         System.out.println("таск - " + inMemoryTaskManager.getTasks());
         System.out.println();
 
+        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.print(inMemoryTaskManager.getTaskById(taskId1));
+        System.out.print(inMemoryTaskManager.getSubtaskById(sub1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.print(inMemoryTaskManager.getSubtaskById(sub1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.print(inMemoryTaskManager.getSubtaskById(sub2));
+        System.out.print(inMemoryTaskManager.getSubtaskById(sub3)); //10 историй
+
+        System.out.println();
         // Обновление
         System.out.println("Обновление");
 
@@ -60,6 +72,16 @@ public class Main {
         inMemoryTaskManager.delIdSubtaskMap(sub1);
         System.out.println("эпики - " + inMemoryTaskManager.getEpics());
         System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
+
+        //История
+        System.out.println();
+        System.out.println("История");
+        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.println();
+        System.out.println(inMemoryTaskManager.getHistory());
 
 
     }
