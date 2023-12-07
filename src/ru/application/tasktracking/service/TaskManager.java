@@ -12,6 +12,7 @@ public interface TaskManager {
     public ArrayList<Epic> getEpics();
 
     public ArrayList<Subtask> getSubtasks();
+
     void clearTaskMap();
 
     void clearEpicMap();
