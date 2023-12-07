@@ -1,12 +1,14 @@
 package ru.application.tasktracking.objects;
 
+import ru.application.tasktracking.service.StatusTask;
+
 public class Task {
     protected String name;
     protected String description;
     protected int uniqueId;
-    protected String status;
+    protected StatusTask status;
 
-    public Task(String name, String description, String status) {
+    public Task(String name, String description, StatusTask status) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -20,11 +22,11 @@ public class Task {
         this.uniqueId = uniqueId;
     }
 
-    public String getStatus() {
+    public StatusTask getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusTask status) {
         this.status = status;
     }
 

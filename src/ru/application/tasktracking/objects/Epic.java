@@ -1,12 +1,14 @@
 package ru.application.tasktracking.objects;
 
+import ru.application.tasktracking.service.StatusTask;
+
 import java.util.ArrayList;
 
 public class Epic extends Task {
 
     protected ArrayList<Integer> listSubtaskId = new ArrayList<>();
 
-    public Epic(String name, String description, String status) {
+    public Epic(String name, String description, StatusTask status) {
         super(name, description, status);
     }
 

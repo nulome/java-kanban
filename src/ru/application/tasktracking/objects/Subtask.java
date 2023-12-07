@@ -1,10 +1,12 @@
 package ru.application.tasktracking.objects;
 
+import ru.application.tasktracking.service.StatusTask;
+
 public class Subtask extends Task {
 
     protected int epicId;
 
-    public Subtask(String name, String description, String status, int epicId) {
+    public Subtask(String name, String description, StatusTask status, int epicId) {
         super(name, description, status);
         this.epicId = epicId;
     }

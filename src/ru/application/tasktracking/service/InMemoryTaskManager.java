@@ -7,14 +7,18 @@ import ru.application.tasktracking.objects.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager extends Managers implements TaskManager {
+    public HistoryManager inHistory = getDefaultHistory();
     private HashMap<Integer, Task> taskMap = new HashMap<>();
     private HashMap<Integer, Epic> epicMap = new HashMap<>();
     private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
-    private ArrayList<Task> history = new ArrayList<>();
 
     private int newId = 0;
 
+
+    public HistoryManager getHistoryManager() {
+        return inHistory;
+    }// не знаю, нужно ли добавлять метод в интерефейс, так как создал для просмотра в мейн
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -53,19 +57,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(Integer key) {
-        addHistory(taskMap.get(key));
+        inHistory.addHistory(taskMap.get(key));
         return taskMap.get(key);
     }
 
     @Override
     public Epic getEpicById(Integer key) {
-        addHistory(epicMap.get(key));
+        inHistory.addHistory(epicMap.get(key));
         return epicMap.get(key);
     }
 
     @Override
     public Subtask getSubtaskById(Integer key) {
-        addHistory(subtaskMap.get(key));
+        inHistory.addHistory(subtaskMap.get(key));
         return subtaskMap.get(key);
     }
 
@@ -126,18 +130,18 @@ public class InMemoryTaskManager implements TaskManager {
             int i = 0;
             for (Integer idList : epic.getListSubtaskId()) {
                 if (i == NEW && subtaskMap.get(idList).getStatus().equals("NEW")) {
-                    epic.setStatus("NEW");
+                    epic.setStatus(StatusTask.NEW);
                     NEW++;
                 } else if (i == DONE && subtaskMap.get(idList).getStatus().equals("DONE")) {
-                    epic.setStatus("DONE");
+                    epic.setStatus(StatusTask.DONE);
                     DONE++;
                 } else {
-                    epic.setStatus("IN_PROGRESS");
+                    epic.setStatus(StatusTask.IN_PROGRESS);
                 }
                 i++;
             }
         } else {
-            epic.setStatus("NEW");
+            epic.setStatus(StatusTask.NEW);
         }
     }
 
@@ -179,15 +183,5 @@ public class InMemoryTaskManager implements TaskManager {
         return subtasksList;
     }
 
-    @Override
-    public ArrayList<Task> getHistory(){
-        return history;
-    }
 
-    private void addHistory(Task task){
-        history.add(task);
-        if(history.size() > 10){
-            history.remove(0);
-        }
-    }
 }
