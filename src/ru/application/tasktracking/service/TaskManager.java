@@ -5,13 +5,14 @@ import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
-    public ArrayList<Task> getTasks();
+    ArrayList<Task> getTasks();
 
-    public ArrayList<Epic> getEpics();
+    ArrayList<Epic> getEpics();
 
-    public ArrayList<Subtask> getSubtasks();
+    ArrayList<Subtask> getSubtasks();
 
     void clearTaskMap();
 
@@ -44,4 +45,6 @@ public interface TaskManager {
     void delIdSubtaskMap(int id);
 
     ArrayList<Subtask> subtasksListToEpic(int id);
+
+    List<Task> getHistory();
 }

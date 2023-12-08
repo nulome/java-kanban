@@ -1,12 +1,10 @@
 package ru.application.tasktracking;
 
-import ru.application.tasktracking.service.HistoryManager;
-import ru.application.tasktracking.service.InMemoryTaskManager;
 import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
+import ru.application.tasktracking.service.InMemoryTaskManager;
 import ru.application.tasktracking.service.StatusTask;
-
 
 
 public class Main {
@@ -14,7 +12,6 @@ public class Main {
     public static void main(String[] args) {
 
         InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
-        HistoryManager inHistory = inMemoryTaskManager.getHistoryManager();
 
         // Создание
         System.out.println("Создание");
@@ -80,12 +77,12 @@ public class Main {
         //История
         System.out.println();
         System.out.println("История");
-        System.out.println(inHistory.getHistory());
+        System.out.println(inMemoryTaskManager.getHistory());
         System.out.print(inMemoryTaskManager.getEpicById(epicId1)); // проверка обновления и удаления старого просмотра
         System.out.print(inMemoryTaskManager.getEpicById(epicId1));
         System.out.print(inMemoryTaskManager.getEpicById(epicId1));
         System.out.println();
-        System.out.println(inHistory.getHistory());
+        System.out.println(inMemoryTaskManager.getHistory());
 
 
     }

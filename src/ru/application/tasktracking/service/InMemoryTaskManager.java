@@ -6,19 +6,15 @@ import ru.application.tasktracking.objects.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class InMemoryTaskManager extends Managers implements TaskManager {
-    public HistoryManager inHistory = getDefaultHistory();
+public class InMemoryTaskManager implements TaskManager {
+    public HistoryManager inHistory = Managers.getDefaultHistory();
     private HashMap<Integer, Task> taskMap = new HashMap<>();
     private HashMap<Integer, Epic> epicMap = new HashMap<>();
     private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
 
     private int newId = 0;
-
-
-    public HistoryManager getHistoryManager() {
-        return inHistory;
-    }// не знаю, нужно ли добавлять метод в интерефейс, так как создал для просмотра в мейн
 
     @Override
     public ArrayList<Task> getTasks() {
@@ -129,10 +125,10 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
             int DONE = 0;
             int i = 0;
             for (Integer idList : epic.getListSubtaskId()) {
-                if (i == NEW && subtaskMap.get(idList).getStatus().equals("NEW")) {
+                if (i == NEW && subtaskMap.get(idList).getStatus() == StatusTask.NEW) {
                     epic.setStatus(StatusTask.NEW);
                     NEW++;
-                } else if (i == DONE && subtaskMap.get(idList).getStatus().equals("DONE")) {
+                } else if (i == DONE && subtaskMap.get(idList).getStatus() == StatusTask.DONE) {
                     epic.setStatus(StatusTask.DONE);
                     DONE++;
                 } else {
@@ -183,5 +179,9 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
         return subtasksList;
     }
 
+    @Override
+    public List<Task> getHistory() {
+        return inHistory.getHistory();
+    }
 
 }
