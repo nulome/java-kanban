@@ -25,9 +25,11 @@ public class Main {
         Subtask subtask1 = new Subtask("Subtask #sub1", "Subtask description", StatusTask.NEW, epicId1);
         Subtask subtask2 = new Subtask("Subtask #sub2", "Subtask description", StatusTask.NEW, epicId1);
         Subtask subtask3 = new Subtask("Subtask #sub3", "Subtask description", StatusTask.NEW, epicId2);
+        Subtask subtask4 = new Subtask("Subtask #sub4", "Subtask description", StatusTask.NEW, epicId1);
         int sub1 = inMemoryTaskManager.creationSubtask(subtask1);
         int sub2 = inMemoryTaskManager.creationSubtask(subtask2);
         int sub3 = inMemoryTaskManager.creationSubtask(subtask3);
+        int sub4 = inMemoryTaskManager.creationSubtask(subtask4);
         System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
         System.out.println("эпики - " + inMemoryTaskManager.getEpics());
         System.out.println("подз. эпик1 - " + inMemoryTaskManager.subtasksListToEpic(epicId1));
@@ -46,12 +48,16 @@ public class Main {
         System.out.println(inMemoryTaskManager.getSubtaskById(sub1));
         System.out.println("История " + inMemoryTaskManager.getHistory());
 
+        inMemoryTaskManager.delIdSubtaskMap(sub1);
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+
         subtask1.setStatus(StatusTask.DONE);
         subtask1.setUniqueId(sub1);
         inMemoryTaskManager.updateSubtask(subtask1);
 
         System.out.println(inMemoryTaskManager.getSubtaskById(sub1));
         System.out.println("История " + inMemoryTaskManager.getHistory());
+
 
         System.out.println(inMemoryTaskManager.getEpicById(epicId2));
         System.out.println(inMemoryTaskManager.getEpicById(epicId1));
@@ -60,53 +66,28 @@ public class Main {
         System.out.println(inMemoryTaskManager.getEpicById(epicId2));
         System.out.println("История " + inMemoryTaskManager.getHistory());
 
-        /*
-        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
-        System.out.print(inMemoryTaskManager.getTaskById(taskId1));
-        System.out.print(inMemoryTaskManager.getSubtaskById(sub1));
-        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
-        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
-        System.out.print(inMemoryTaskManager.getSubtaskById(sub1));
-        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
-        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
-        System.out.print(inMemoryTaskManager.getSubtaskById(sub2));
-        System.out.println(inMemoryTaskManager.getSubtaskById(sub3)); //10 историй
-
+        //удаление задачи из просмотра
         System.out.println();
-        // Обновление
-        System.out.println("Обновление");
-
-        subtask1.setStatus(StatusTask.DONE);
-        subtask1.setUniqueId(sub1);
-        subtask3.setStatus(StatusTask.DONE);
-        subtask1.setUniqueId(sub3);
-        inMemoryTaskManager.updateSubtask(subtask1);
-        inMemoryTaskManager.updateSubtask(subtask3);
-        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
-        System.out.println("эпики - " + inMemoryTaskManager.getEpics());
-        System.out.println();
-
-        // Удаление
         System.out.println("Удаление");
-
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
+        inMemoryTaskManager.delIdSubtaskMap(sub1);
+        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+        System.out.print(inMemoryTaskManager.getTaskById(taskId1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.print(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.println(inMemoryTaskManager.getSubtaskById(sub2));
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+        inMemoryTaskManager.delIdTaskMap(taskId1);
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+        inMemoryTaskManager.delIdEpicMap(epicId1);
+        System.out.println("История " + inMemoryTaskManager.getHistory());
         inMemoryTaskManager.delIdEpicMap(epicId2);
-        System.out.println("эпики - " + inMemoryTaskManager.getEpics());
-        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
-        inMemoryTaskManager.delIdSubtaskMap(sub1);
-        inMemoryTaskManager.delIdSubtaskMap(sub1);
-        System.out.println("эпики - " + inMemoryTaskManager.getEpics());
-        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
+        System.out.println("История " + inMemoryTaskManager.getHistory());
 
-        //История
-        System.out.println();
-        System.out.println("История");
-        System.out.println(inMemoryTaskManager.getHistory());
-        System.out.print(inMemoryTaskManager.getEpicById(epicId1)); // проверка обновления и удаления старого просмотра
-        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
-        System.out.print(inMemoryTaskManager.getEpicById(epicId1));
-        System.out.println();
-        System.out.println(inMemoryTaskManager.getHistory());
-        */
+        System.out.println("эпики - " + inMemoryTaskManager.getEpics());
+        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
 
 
     }

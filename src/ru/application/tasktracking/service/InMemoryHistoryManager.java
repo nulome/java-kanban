@@ -19,14 +19,14 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (customHistory.containsKey(task.getUniqueId())) {
                 Node<Task> swapNode = customHistory.get(task.getUniqueId());
                 if (size == 1) {
-                    customHistory.put(task.getUniqueId(), new Node<>(task)); // проверить замену списка из 1 истории, при просмотре 1 и той же задачи
+                    head = new Node<>(task);
+                    customHistory.put(task.getUniqueId(), head); // проверить замену списка из 1 истории, при просмотре 1 и той же задачи
                 } else {
                     removeNode(swapNode);
                     newHead(task);
                 }
             } else {
                 newHead(task);
-                size++;
             }
         } else {
             head = new Node<>(task);
@@ -38,10 +38,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     private void newHead(Task task) {
         Node<Task> newHead = new Node<>(task, head);
         customHistory.put(task.getUniqueId(), newHead);
-
         head.next = newHead;
-
         head = newHead;
+        size++;
     }
 
     private void getTasksHistory() { // собирать все задачи из HashMap в обычный ArrayList
@@ -56,7 +55,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     private void removeNode(Node<Task> swapNode) { // должен принимать объект Node — узел связного списка и вырезать его.
         Node<Task> prevNode = swapNode.prev;
         Node<Task> nextNode = swapNode.next;
-        if(prevNode == null) {
+        if (size == 1) {
+            head = null;
+        } else if (prevNode == null) {
             nextNode.prev = null;
         } else if (nextNode == null) {
             prevNode.next = null;
@@ -65,19 +66,14 @@ public class InMemoryHistoryManager implements HistoryManager {
             prevNode.next = nextNode;
             nextNode.prev = prevNode;
         }
+        size--;
         customHistory.remove(swapNode.data.getUniqueId());
     }
 
-    private void add(Task task) { // быстро удалять задачу из списка, если она там есть, а затем вставлять её в конец двусвязного списка.
-        // не забудьте обновить значение узла в HashMap
-
-    }
 
     @Override
     public ArrayList<Task> getHistory() {
-        if(!customHistory.isEmpty()) {
-            getTasksHistory();
-        }
+        getTasksHistory();
         return history;
     }
 
@@ -91,7 +87,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(int id) {
+    public void removeHistory(int id) {
+        if (customHistory.containsKey(id)) {
+            Node<Task> node = customHistory.get(id);
+            removeNode(node);
+        }
         // доработка
     }
 

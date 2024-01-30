@@ -144,14 +144,17 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void delIdTaskMap(int id) {
         taskMap.remove(id);
+        inHistory.removeHistory(id);
     }
 
     @Override
     public void delIdEpicMap(int id) {
         for (Integer idList : epicMap.get(id).getListSubtaskId()) {
             subtaskMap.remove(idList);
+            inHistory.removeHistory(idList);
         }
         epicMap.remove(id);
+        inHistory.removeHistory(id);
     }
 
     @Override
@@ -166,6 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
         listIds.remove((Integer) id);
 
         updateStatusEpic(updateEpic);
+        inHistory.removeHistory(id);
     }
 
     @Override
