@@ -1,7 +1,6 @@
 package ru.application.tasktracking.service;
 
 
-
 public class Node <Task> {
     public Task data;
     public Node<Task> next;

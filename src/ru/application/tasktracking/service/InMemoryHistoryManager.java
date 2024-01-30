@@ -8,19 +8,18 @@ import java.util.HashMap;
 public class InMemoryHistoryManager implements HistoryManager {
 
     private Node<Task> head;
-    //public Node<Task> tail;
     private int size = 0;
     private ArrayList<Task> history = new ArrayList<>();
-    private HashMap<Integer, Node<Task>> customHistory = new HashMap<>(); // В ключах будут храниться id задач, а в значениях Node —  узлы связного списка.
+    private HashMap<Integer, Node<Task>> customHistory = new HashMap<>();
 
 
-    private void linkLast(Task task) { // добавлять задачу в конец этого списка // вопрос. нужно ли ограничивать количество списка, как в списке истории.
+    private void linkLast(Task task) {
         if (!customHistory.isEmpty()) {
             if (customHistory.containsKey(task.getUniqueId())) {
                 Node<Task> swapNode = customHistory.get(task.getUniqueId());
                 if (size == 1) {
                     head = new Node<>(task);
-                    customHistory.put(task.getUniqueId(), head); // проверить замену списка из 1 истории, при просмотре 1 и той же задачи
+                    customHistory.put(task.getUniqueId(), head);
                 } else {
                     removeNode(swapNode);
                     newHead(task);
@@ -43,7 +42,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         size++;
     }
 
-    private void getTasksHistory() { // собирать все задачи из HashMap в обычный ArrayList
+    private void getTasksHistory() {
         Node<Task> node = head;
         history.clear();
         for (int i = 0; i < size; i++) {
@@ -52,7 +51,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    private void removeNode(Node<Task> swapNode) { // должен принимать объект Node — узел связного списка и вырезать его.
+    private void removeNode(Node<Task> swapNode) {
         Node<Task> prevNode = swapNode.prev;
         Node<Task> nextNode = swapNode.next;
         if (size == 1) {
@@ -82,7 +81,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         /*history.add(task);
         if (history.size() > 10) {
             history.remove(0);
-        }*/
+        }*/  // не нашел в ТЗ информацию по ограничению в 10 историй. Если все верно, то далее удалю.
         linkLast(task);
     }
 
@@ -92,7 +91,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             Node<Task> node = customHistory.get(id);
             removeNode(node);
         }
-        // доработка
     }
 
 }
