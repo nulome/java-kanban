@@ -13,6 +13,7 @@ public class Main {
 
         InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
 
+
         // Создание
         System.out.println("Создание");
 
@@ -38,6 +39,28 @@ public class Main {
         System.out.println("таск - " + inMemoryTaskManager.getTasks());
         System.out.println();
 
+        //История
+        System.out.println();
+        System.out.println("История");
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+        System.out.println(inMemoryTaskManager.getSubtaskById(sub1));
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+
+        subtask1.setStatus(StatusTask.DONE);
+        subtask1.setUniqueId(sub1);
+        inMemoryTaskManager.updateSubtask(subtask1);
+
+        System.out.println(inMemoryTaskManager.getSubtaskById(sub1));
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+
+        System.out.println(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.println(inMemoryTaskManager.getEpicById(epicId1));
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+
+        System.out.println(inMemoryTaskManager.getEpicById(epicId2));
+        System.out.println("История " + inMemoryTaskManager.getHistory());
+
+        /*
         System.out.print(inMemoryTaskManager.getEpicById(epicId2));
         System.out.print(inMemoryTaskManager.getTaskById(taskId1));
         System.out.print(inMemoryTaskManager.getSubtaskById(sub1));
@@ -83,6 +106,7 @@ public class Main {
         System.out.print(inMemoryTaskManager.getEpicById(epicId1));
         System.out.println();
         System.out.println(inMemoryTaskManager.getHistory());
+        */
 
 
     }
