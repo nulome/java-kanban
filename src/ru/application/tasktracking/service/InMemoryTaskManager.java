@@ -33,11 +33,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTaskMap() {
+        for(Task task : taskMap.values()){
+            inHistory.removeHistory(task.getUniqueId());
+        }
         taskMap.clear();
     }
 
     @Override
     public void clearEpicMap() {
+        for(Task task : epicMap.values()){
+            inHistory.removeHistory(task.getUniqueId());
+        }
+        for(Task task : subtaskMap.values()){
+            inHistory.removeHistory(task.getUniqueId());
+        }
         epicMap.clear();
         subtaskMap.clear();
     }
@@ -47,6 +56,9 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epicMap.values()) {
             epic.setListSubtaskId(new ArrayList<>());
             updateStatusEpic(epic);
+        }
+        for(Task task : subtaskMap.values()){
+            inHistory.removeHistory(task.getUniqueId());
         }
         subtaskMap.clear();
     }

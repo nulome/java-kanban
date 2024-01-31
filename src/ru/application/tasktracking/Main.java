@@ -83,9 +83,10 @@ public class Main {
         System.out.println("История " + inMemoryTaskManager.getHistory());
         inMemoryTaskManager.delIdEpicMap(epicId1);
         System.out.println("История " + inMemoryTaskManager.getHistory());
-        inMemoryTaskManager.delIdEpicMap(epicId2);
-        System.out.println("История " + inMemoryTaskManager.getHistory());
+        inMemoryTaskManager.clearEpicMap();
 
+
+        System.out.println("История " + inMemoryTaskManager.getHistory());
         System.out.println("эпики - " + inMemoryTaskManager.getEpics());
         System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
 
