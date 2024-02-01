@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-
 public class InMemoryHistoryManager implements HistoryManager {
 
     private Node<Task> head;
@@ -14,30 +13,43 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final HashMap<Integer, Node<Task>> nodeHistory = new HashMap<>();
 
 
-    private void linkLast(Task task) {
-        Node<Task> newHead = new Node<>(task, head);
-        nodeHistory.put(task.getUniqueId(), newHead);
-        head.next = newHead;
-        head = newHead;
+    private void linkLast(Task task) { // запутался из-за ТЗ.
+        // В ТЗ: "linkLast будет добавлять задачу в конец этого списка".
+
+        // Доисправил код. Теперь понятно.
+        // Будем стараться))
+
+        final Node<Task> newHead = new Node<>(task, head);
+        if (head == null) {
+            head = newHead;
+            tail = newHead;
+            tail.next = newHead;
+        } else {
+            head.next = newHead;
+            head = newHead;
+        }
     }
 
-    private void removeNode(Node<Task> swapNode) {
-        Node<Task> prevNode = swapNode.prev;
-        Node<Task> nextNode = swapNode.next;
-        if (prevNode == null && nextNode == null) {
-            head = null;
-            tail = null;
-        } else if (prevNode == null) {
-            nextNode.prev = null;
-            tail = nextNode;
-        } else if (nextNode == null) {
-            prevNode.next = null;
-            head = prevNode;
-        } else {
-            prevNode.next = nextNode;
-            nextNode.prev = prevNode;
+    private void removeNode(int id) {
+        if (nodeHistory.containsKey(id)) {
+            if (nodeHistory.size() == 1) {
+                head = null;
+                tail = null;
+            } else {
+                Node<Task> swapNode = nodeHistory.get(id);
+                if (swapNode.prev == null) {
+                    swapNode.next.prev = null;
+                    tail = swapNode.next;
+                } else if (swapNode.next == null) {
+                    swapNode.prev.next = null;
+                    head = swapNode.prev;
+                } else {
+                    swapNode.prev.next = swapNode.next;
+                    swapNode.next.prev = swapNode.prev;
+                }
+                nodeHistory.remove(id);
+            }
         }
-        nodeHistory.remove(swapNode.data.getUniqueId());
     }
 
 
@@ -46,35 +58,24 @@ public class InMemoryHistoryManager implements HistoryManager {
         ArrayList<Task> history = new ArrayList<>();
         Node<Task> node = head;
         while (node != null) {
-                history.add(node.data);
-                node = node.prev;
+            history.add(node.data);
+            node = node.prev;
         }
         return history;
     }
 
     @Override
     public void addHistory(Task task) {
-        if (!nodeHistory.isEmpty()) {
-            if (nodeHistory.containsKey(task.getUniqueId())) {
-                Node<Task> swapNode = nodeHistory.get(task.getUniqueId());
-                removeNode(swapNode);
-                linkLast(task);
-            } else {
-                linkLast(task);
-            }
-        } else {
-            head = new Node<>(task);
-            tail = head;
+        if (task != null) {
+            removeNode(task.getUniqueId());
+            linkLast(task);
             nodeHistory.put(task.getUniqueId(), head);
         }
     }
 
     @Override
     public void removeHistory(int id) {
-        if (nodeHistory.containsKey(id)) {
-            Node<Task> node = nodeHistory.get(id);
-            removeNode(node);
-        }
+        removeNode(id);
     }
 
 }
