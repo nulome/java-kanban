@@ -4,6 +4,7 @@ import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface TaskManager {
 
     Subtask getSubtaskById(Integer key);
 
-    Integer creationTask(Task task);
+    Integer creationTask(Task task) throws IOException;
 
     Integer creationEpic(Epic epic);
 

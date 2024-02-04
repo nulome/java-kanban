@@ -18,6 +18,14 @@ public class Task {
         return uniqueId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setUniqueId(int uniqueId) {
         this.uniqueId = uniqueId;
     }

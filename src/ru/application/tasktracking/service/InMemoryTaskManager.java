@@ -4,6 +4,7 @@ import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,18 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
 
     private int newId = 0;
+
+    public HashMap<Integer, Task> getTaskMap() {
+        return taskMap;
+    }
+
+    public HashMap<Integer, Epic> getEpicMap() {
+        return epicMap;
+    }
+
+    public HashMap<Integer, Subtask> getSubtaskMap() {
+        return subtaskMap;
+    }
 
     @Override
     public ArrayList<Task> getTasks() {

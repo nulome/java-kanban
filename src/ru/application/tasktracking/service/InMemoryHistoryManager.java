@@ -13,11 +13,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final HashMap<Integer, Node<Task>> nodeHistory = new HashMap<>();
 
 
-    private void linkLast(Task task) { // запутался из-за ТЗ.
-        // В ТЗ: "linkLast будет добавлять задачу в конец этого списка".
-
-        // Доисправил код. Теперь понятно.
-        // Будем стараться))
+    private void linkLast(Task task) {
 
         final Node<Task> newHead = new Node<>(task, head);
         if (head == null) {
