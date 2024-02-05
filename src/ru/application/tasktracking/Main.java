@@ -12,19 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static java.nio.file.Files.deleteIfExists;
+
 
 public class Main {
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
 
-        Path myFile = Paths.get("Tasks.csv");
+        /*Path myFile = Paths.get("Tasks.csv");
 
         InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
 
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(myFile);
-
-
-
 
 
         //SP6
@@ -41,10 +40,10 @@ public class Main {
         System.out.println("эпики - " + fileBackedTasksManager.getEpics());
         System.out.println("подзадачи - " + fileBackedTasksManager.getSubtasks());
 
-        String string= fileBackedTasksManager.getSubtaskById(sub1).toString();
-        string= fileBackedTasksManager.getEpicById(epicId1).toString();
+        String string = fileBackedTasksManager.getSubtaskById(sub1).toString();
+        string = fileBackedTasksManager.getEpicById(epicId1).toString();
 
-        System.out.println("История " + fileBackedTasksManager.getHistory());
+        System.out.println("История " + fileBackedTasksManager.getHistory());*/
 
 
 

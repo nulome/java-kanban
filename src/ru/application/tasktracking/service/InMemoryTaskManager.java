@@ -29,6 +29,26 @@ public class InMemoryTaskManager implements TaskManager {
         return subtaskMap;
     }
 
+    public void setNewId(int newId) {
+        this.newId = newId;
+    }
+
+    public void setInHistory(HistoryManager inHistory) {
+        this.inHistory = inHistory;
+    }
+
+    public void setTaskMap(HashMap<Integer, Task> taskMap) {
+        this.taskMap = taskMap;
+    }
+
+    public void setEpicMap(HashMap<Integer, Epic> epicMap) {
+        this.epicMap = epicMap;
+    }
+
+    public void setSubtaskMap(HashMap<Integer, Subtask> subtaskMap) {
+        this.subtaskMap = subtaskMap;
+    }
+
     @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(taskMap.values());
