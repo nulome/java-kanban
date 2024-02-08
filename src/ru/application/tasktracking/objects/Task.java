@@ -1,17 +1,25 @@
 package ru.application.tasktracking.objects;
 
 import ru.application.tasktracking.service.StatusTask;
+import ru.application.tasktracking.service.TypeTask;
 
 public class Task {
     protected String name;
     protected String description;
-    protected int uniqueId;
     protected StatusTask status;
+    protected int uniqueId;
 
     public Task(String name, String description, StatusTask status) {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(String name, String description, StatusTask status, int uniqueId) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.uniqueId = uniqueId;
     }
 
     public int getUniqueId() {
@@ -32,6 +40,10 @@ public class Task {
 
     public StatusTask getStatus() {
         return status;
+    }
+
+    public TypeTask getType() {
+        return TypeTask.TASK;
     }
 
     public void setStatus(StatusTask status) {

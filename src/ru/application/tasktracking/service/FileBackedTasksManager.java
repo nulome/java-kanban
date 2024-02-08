@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -59,33 +60,32 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
 
     private void save() {
-        try (Writer fileWriter = new FileWriter(String.valueOf(saveFile.getFileName()))) {
+        try {
+            try (Writer fileWriter = new FileWriter(String.valueOf(saveFile.getFileName()))) {
 
-            fileWriter.write("id,type,name,status,description,epic\n");
-            if (super.getTaskMap() == null || super.getEpicMap() == null || super.getSubtaskMap() == null) {
-                throw new ManagerSaveException("Не создано поле для задач.");
-            }
-            for (Task task : super.getTaskMap().values()) {
-                fileWriter.write(toString(task, TypeTask.TASK) + "\n");
-            }
-            for (Epic task : super.getEpicMap().values()) {
-                fileWriter.write(toString(task, TypeTask.EPIC) + "\n");
-            }
-            for (Subtask task : super.getSubtaskMap().values()) {
-                fileWriter.write(toString(task, TypeTask.SUBTASK) + "\n");
-            }
-            fileWriter.write("\n");
+                fileWriter.write("id,type,name,status,description,epic\n");
 
-            if (!super.getHistory().isEmpty()) {
-                fileWriter.write(historyToString(super.inHistory));
-            }
+                for (Task task : getTaskMap().values()) {
+                    fileWriter.write(toString(task, TypeTask.TASK) + "\n");
+                }
+                for (Epic task : getEpicMap().values()) {
+                    fileWriter.write(toString(task, TypeTask.EPIC) + "\n");
+                }
+                for (Subtask task : getSubtaskMap().values()) {
+                    fileWriter.write(toString(task, TypeTask.SUBTASK) + "\n");
+                }
+                fileWriter.write("\n");
 
+                if (!getHistory().isEmpty()) {
+                    fileWriter.write(historyToString(inHistory));
+                }
+
+            } catch (IOException e) {
+                throw new ManagerSaveException("Не удается сохранить в файл" + saveFile.getFileName(), e);
+            }
         } catch (ManagerSaveException e) {
             System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }  // Вопросик. Мы отлавливаем исключения, но наш класс наследован от IOException,
-        // почему при удалении самого IOException он ругается. Наш класс не отслеживает исключения с IOException?
+        }
     }
 
 
@@ -99,29 +99,30 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return result;
     }
 
-    private Task fromString(String value) {
+    private static Task fromString(String value) {
 
         String[] stringTask = value.split(",");
-        StatusTask status = StatusTask.valueOf(stringTask[3]);
+        final int uniqueId = Integer.parseInt(stringTask[0]);
+        final TypeTask typeTask = TypeTask.valueOf(stringTask[1]);
+        final String nameTask = stringTask[2];
+        final StatusTask status = StatusTask.valueOf(stringTask[3]);
+        final String descriptionTask = stringTask[4];
         Task task = null;
 
-        switch (stringTask[1]) {
-            case "TASK":
-                task = new Task(stringTask[2], stringTask[4], status);
+        switch (typeTask) {
+            case TASK:
+                task = new Task(nameTask, descriptionTask, status, uniqueId);
                 break;
 
-            case "EPIC":
-                task = new Epic(stringTask[2], stringTask[4], status);
+            case EPIC:
+                task = new Epic(nameTask, descriptionTask, status, uniqueId);
                 break;
 
-            case "SUBTASK":
+            case SUBTASK:
                 int epicNum = Integer.parseInt(stringTask[5]);
-                task = new Subtask(stringTask[2], stringTask[4], status, epicNum);
+                task = new Subtask(nameTask, descriptionTask, status, uniqueId, epicNum);
                 break;
         }
-
-        int number = Integer.parseInt(stringTask[0]);
-        task.setUniqueId(number);
 
         return task;
     }
@@ -130,7 +131,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     static String historyToString(HistoryManager manager) {
         StringBuilder sb = new StringBuilder();
         for (Task task : manager.getHistory()) {
-            sb.append(task.getUniqueId() + ",");
+            sb.append(task.getUniqueId()).append(",");
         }
         sb.delete(sb.length() - 1, sb.length());
         sb.reverse();
@@ -154,48 +155,55 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         try {
             String strData = Files.readString(Path.of(file.toUri()));
             String[] stringsTask = strData.split("\n");
-
-            int count = -1;
+            List<Integer> history = Collections.emptyList();
             int saveMaxId = 0;
-            Task nullTask = null;
 
             for (int i = 1; i < stringsTask.length; i++) {
-                if (stringsTask[i].isBlank()) {
-                    count = 1;
-                } else if (count == 1) {
+                String line = stringsTask[i];
+                if (line.isEmpty()) {
+                    history = historyFromString(stringsTask[i + 1]);
+                    break;
+                }
 
-                    for (Integer numberId : historyFromString(stringsTask[i])) {
-                        if (fileBacked.getTaskMap().containsKey(numberId)) {
-                            nullTask = fileBacked.getTaskById(numberId);
-                        } else if (fileBacked.getEpicMap().containsKey(numberId)) {
-                            nullTask = fileBacked.getEpicById(numberId);
-                        } else {
-                            nullTask = fileBacked.getSubtaskById(numberId);
-                        }
-                    }   // Верно ли реализовал запись в новом классе. Получается сохраненные данные мы перегоняем
-                    // через реализацию самих методов в классе, а внутри он уже сам записывает в поля данные.
-                    // В эпиках имеется список с ИД сабтасков, по другому не придумал как проще реализовать.
+                final Task task = fromString(line);
+                final int id = task.getUniqueId();
+                if (id > saveMaxId) {
+                    saveMaxId = id;
+                }
 
-                } else {
+                switch (task.getType()) {
+                    case TASK:
+                        fileBacked.taskMap.put(id, task);
+                        break;
 
-                    nullTask = fileBacked.fromString(stringsTask[i]);
+                    case EPIC:
+                        fileBacked.epicMap.put(id, (Epic) task);
+                        break;
 
-                    int taskId = nullTask.getUniqueId();
-                    if (saveMaxId < taskId) {
-                        saveMaxId = taskId;
-                    }
-                    fileBacked.setNewId(taskId - 1);
-
-                    if (nullTask instanceof Subtask) {
-                        fileBacked.creationSubtask((Subtask) nullTask);
-                    } else if (nullTask instanceof Epic) {
-                        fileBacked.creationEpic((Epic) nullTask);
-                    } else {
-                        fileBacked.creationTask(nullTask);
-                    }
-
+                    case SUBTASK:
+                        fileBacked.subtaskMap.put(id, (Subtask) task);
+                        break;
                 }
             }
+
+            for (Subtask subtask : fileBacked.subtaskMap.values()) {
+                ArrayList<Integer> listEpicId = fileBacked.epicMap.get(subtask.getEpicId()).getListSubtaskId();
+                listEpicId.add(subtask.getEpicId());
+            }
+
+            for (Integer taskId : history) {
+                Task task;
+                if (fileBacked.taskMap.containsKey(taskId)) {
+                    task = fileBacked.taskMap.get(taskId);
+                } else if (fileBacked.epicMap.containsKey(taskId)) {
+                    task = fileBacked.epicMap.get(taskId);
+                } else {
+                    task = fileBacked.subtaskMap.get(taskId);
+                }
+
+                fileBacked.inHistory.addHistory(task);
+            }
+
             fileBacked.setNewId(saveMaxId);
 
         } catch (IOException e) {
