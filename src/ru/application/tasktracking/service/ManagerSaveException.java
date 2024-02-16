@@ -2,7 +2,7 @@ package ru.application.tasktracking.service;
 
 import java.io.IOException;
 
-public class ManagerSaveException extends Exception{
+public class ManagerSaveException extends RuntimeException{
     public ManagerSaveException() {
     }
 

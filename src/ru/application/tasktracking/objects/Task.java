@@ -3,18 +3,28 @@ package ru.application.tasktracking.objects;
 import ru.application.tasktracking.service.StatusTask;
 import ru.application.tasktracking.service.TypeTask;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Task {
     protected String name;
     protected String description;
     protected StatusTask status;
     protected int uniqueId;
+    protected Duration duration = Duration.ofMinutes(0);
+    protected LocalDateTime startTime;
 
-    public Task(String name, String description, StatusTask status) {
+
+    public Task(String name, String description, StatusTask status, int uniqueId, Duration duration,
+                LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.status = status;
+        this.uniqueId = uniqueId;
+        this.duration = duration;
+        this.startTime = startTime;
     }
-
     public Task(String name, String description, StatusTask status, int uniqueId) {
         this.name = name;
         this.description = description;
@@ -22,8 +32,36 @@ public class Task {
         this.uniqueId = uniqueId;
     }
 
+    public Task(String name, String description, StatusTask status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
+
+
+
     public int getUniqueId() {
         return uniqueId;
+    }
+    public LocalDateTime getEndTime(){
+        return startTime.plusMinutes(duration.toMinutes());
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public String getName() {
@@ -57,4 +95,5 @@ public class Task {
                 ", status='" + status + '\'' +
                 '}';
     }
+
 }

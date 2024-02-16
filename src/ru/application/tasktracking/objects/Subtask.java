@@ -3,6 +3,9 @@ package ru.application.tasktracking.objects;
 import ru.application.tasktracking.service.StatusTask;
 import ru.application.tasktracking.service.TypeTask;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
 
     protected int epicId;
@@ -12,9 +15,13 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-
     public Subtask(String name, String description, StatusTask status, int uniqueId, int epicId) {
         super(name, description, status, uniqueId);
+        this.epicId = epicId;
+    }
+    public Subtask(String name, String description, StatusTask status, int uniqueId, Duration duration,
+                   LocalDateTime startTime, int epicId) {
+        super(name, description, status, uniqueId, duration, startTime);
         this.epicId = epicId;
     }
 

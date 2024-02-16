@@ -4,15 +4,20 @@ import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     public HistoryManager inHistory = Managers.getDefaultHistory();
     protected HashMap<Integer, Task> taskMap = new HashMap<>();
     protected HashMap<Integer, Epic> epicMap = new HashMap<>();
     protected HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
+    TasksComparator tasksComparator = new TasksComparator();
+    protected TreeSet<Task> sortPrioritizedTasks = new TreeSet<>(tasksComparator);
+    private final HashSet<LocalDateTime> checkTableTimeOfPrioritized = new HashSet<>();
+    static final long TIME_CONSTANT = 15;
+
 
     private int newId = 0;
 
@@ -64,23 +69,30 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(sortPrioritizedTasks);
+    }
+
+    @Override
     public void clearTaskMap() {
-        for(Task task : taskMap.values()){
+        for (Task task : taskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
         }
         taskMap.clear();
+        updateSetPrioritized();
     }
 
     @Override
     public void clearEpicMap() {
-        for(Task task : epicMap.values()){
+        for (Task task : epicMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
         }
-        for(Task task : subtaskMap.values()){
+        for (Task task : subtaskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
         }
         epicMap.clear();
         subtaskMap.clear();
+        updateSetPrioritized();
     }
 
     @Override
@@ -88,11 +100,13 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epicMap.values()) {
             epic.setListSubtaskId(new ArrayList<>());
             updateStatusEpic(epic);
+            updateTimeEpic(epic);
         }
-        for(Task task : subtaskMap.values()){
+        for (Task task : subtaskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
         }
         subtaskMap.clear();
+        updateSetPrioritized();
     }
 
     @Override
@@ -115,10 +129,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Integer creationTask(Task task) {
-        this.newId++;
-        task.setUniqueId(newId);
-        taskMap.put(task.getUniqueId(), task);
-        return newId;
+        if (validationOfTheIntersection(task)) {
+            this.newId++;
+            task.setUniqueId(newId);
+            taskMap.put(task.getUniqueId(), task);
+            updateSetPrioritized();
+            return newId;
+        } else {
+            throw new ManagerSaveException("Время для выполнения задачи уже занято.");
+        }
     }
 
     @Override
@@ -131,23 +150,34 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Integer creationSubtask(Subtask subtask) {
-        this.newId++;
-        subtask.setUniqueId(newId);
-        subtaskMap.put(subtask.getUniqueId(), subtask);
+        if(validationOfTheIntersection(subtask)) {
+            this.newId++;
+            subtask.setUniqueId(newId);
+            subtaskMap.put(subtask.getUniqueId(), subtask);
 
-        Epic updateEpic = epicMap.get(subtask.getEpicId());
-        ArrayList<Integer> subtaskIds = updateEpic.getListSubtaskId();
-        subtaskIds.add(subtask.getUniqueId());
-        updateEpic.setListSubtaskId(subtaskIds);
+            Epic updateEpic = epicMap.get(subtask.getEpicId());
+            ArrayList<Integer> subtaskIds = updateEpic.getListSubtaskId();
+            subtaskIds.add(subtask.getUniqueId());
+            updateEpic.setListSubtaskId(subtaskIds);
 
-        updateStatusEpic(updateEpic);
-        return subtask.getUniqueId();
+            updateStatusEpic(updateEpic);
+            updateTimeEpic(updateEpic);
+            updateSetPrioritized();
+            return subtask.getUniqueId();
+        }else {
+            throw new ManagerSaveException("Время для выполнения задачи уже занято.");
+        }
     }
 
     @Override
     public void updateTask(Task task) {
+        if(validationOfTheIntersection(task)) {
         int id = task.getUniqueId();
         taskMap.put(id, task);
+        updateSetPrioritized();
+        }else {
+            throw new ManagerSaveException("Время для выполнения задачи уже занято.");
+        }
     }
 
     @Override
@@ -159,8 +189,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
+        if(validationOfTheIntersection(subtask)) {
         subtaskMap.put(subtask.getUniqueId(), subtask);
         updateStatusEpic(epicMap.get(subtask.getEpicId()));
+        updateTimeEpic(epicMap.get(subtask.getEpicId()));
+        updateSetPrioritized();
+        }else {
+            throw new ManagerSaveException("Время для выполнения задачи уже занято.");
+        }
     }
 
     private void updateStatusEpic(Epic epic) {
@@ -185,10 +221,137 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    private void updateTimeEpic(Epic epic) {
+        Duration duration = Duration.ofMinutes(0);
+        LocalDateTime startTime = LocalDateTime.now();
+        LocalDateTime endTime = startTime;
+
+        if (!epic.getListSubtaskId().isEmpty()) {
+            for (Integer idList : epic.getListSubtaskId()) {
+                Subtask subtask = subtaskMap.get(idList);
+                duration = duration.plusMinutes(subtask.getDuration().toMinutes());
+                if (startTime.isBefore(subtask.getStartTime())) {
+                    startTime = subtask.getStartTime();
+                }
+                if (endTime.isAfter(subtask.getEndTime())) {
+                    endTime = subtask.getEndTime();
+                }
+            }
+
+        } else {
+            startTime = null;
+            endTime = null;
+        }
+        epic.setDuration(duration);
+        epic.setStartTime(startTime);
+        epic.setEndTime(endTime);
+    }
+
+
+    private void updateSetPrioritized() {
+        sortPrioritizedTasks.clear();
+        sortPrioritizedTasks.addAll(taskMap.values());
+        sortPrioritizedTasks.addAll(subtaskMap.values());
+        updateTimeDurationToTableCheck();
+    }
+
+    private boolean validationOfTheIntersection(Task task) { // сложность от 1 в лучш.сл. до от N значений (периода/констант времени).
+        LocalDateTime timeTransferTask = task.getStartTime();
+        if (timeTransferTask == null) {
+            return true;
+        }
+
+        long durationTransferTask = task.getDuration().toMinutes();
+        Task oldTask = null;
+        LocalDateTime oldTaskMapTime = null;
+
+        if (taskMap.containsKey(task.getUniqueId()) || subtaskMap.containsKey(task.getUniqueId())) {
+            oldTask = taskMap.containsKey(task.getUniqueId()) ?
+                    taskMap.get(task.getUniqueId()) : subtaskMap.get(task.getUniqueId());
+            // достаем старый таск, если ранее сохранялся
+            oldTaskMapTime = oldTask.getStartTime();
+        }
+        if (oldTaskMapTime != null) { // если у прошлого имеющегося таска нет времени, то поф идем дальше
+            long checkOldDuration = oldTask.getDuration().toMinutes();
+            if (checkOldDuration == 0) { // проверяем менялось ли значение времени в новом
+                if (timeTransferTask.equals(oldTaskMapTime)) {
+                    return true;
+                } else {
+                    return !checkTableTimeOfPrioritized.contains(timeTransferTask);
+                }
+            } else {
+                List<LocalDateTime> checkListTime = new ArrayList<>();
+
+                LocalDateTime timeEnd = timeTransferTask.plusMinutes(durationTransferTask);
+                for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
+                     forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                    checkListTime.add(forTime);
+                } //собрали значения периодов от нового таска
+
+                timeEnd = oldTaskMapTime.plusMinutes(checkOldDuration);
+                for (LocalDateTime forTime = oldTaskMapTime; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
+                     forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                    checkListTime.remove(forTime);
+                } // убираем из листа с периодами уже занятые периоды старым таском. они нам и так доступны
+
+                for (LocalDateTime time : checkListTime){
+                    if(checkTableTimeOfPrioritized.contains(time)){
+                        return false;
+                    }
+                } // если хоть один имеется, то выходим на отмену, так как время занято
+
+                for (LocalDateTime time : checkListTime){
+                    checkTableTimeOfPrioritized.add(time);
+                } // занимаем места и идем дальше на выход
+
+            }
+
+            // task 5-7 .......  .....2-6..../....6-7task..../....7-8..../.....1-9...../...1-9task....
+            return true; // если все прошло успешно, то можно обновлять/добавлять
+
+        } else {
+            // проверка только свободных значений для нового таска
+            if (durationTransferTask == 0) {
+                if (checkTableTimeOfPrioritized.contains(timeTransferTask)) {
+                    return false;
+                } else {
+                    checkTableTimeOfPrioritized.add(timeTransferTask);
+                    return true;
+                }
+            }
+            LocalDateTime timeEnd = timeTransferTask.plusMinutes(durationTransferTask);
+            long saveDuration = -TIME_CONSTANT;
+            for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
+                 forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                if (!checkTableTimeOfPrioritized.contains(forTime)) {
+                    saveDuration = saveDuration + TIME_CONSTANT;
+                } // если уже есть значение, то не считаем его. если нет, то сохраняем в save
+            }
+            if (saveDuration == durationTransferTask) { // если ниодного значения не занято, то будет равно
+                for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd); forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                    checkTableTimeOfPrioritized.add(forTime);
+                }
+
+
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private void updateTimeDurationToTableCheck() {
+        checkTableTimeOfPrioritized.clear();
+        boolean swap = true;
+        for (Task task : sortPrioritizedTasks) {
+            swap = validationOfTheIntersection(task);
+        }
+    }
+
     @Override
     public void delIdTaskMap(int id) {
         taskMap.remove(id);
         inHistory.removeHistory(id);
+        updateSetPrioritized();
     }
 
     @Override
@@ -199,6 +362,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         epicMap.remove(id);
         inHistory.removeHistory(id);
+        updateSetPrioritized();
     }
 
     @Override
@@ -207,13 +371,14 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask == null) {
             return;
         }
-
         Epic updateEpic = epicMap.get(subtask.getEpicId());
         ArrayList<Integer> listIds = updateEpic.getListSubtaskId();
         listIds.remove((Integer) id);
 
         updateStatusEpic(updateEpic);
+        updateTimeEpic(updateEpic);
         inHistory.removeHistory(id);
+        updateSetPrioritized();
     }
 
     @Override
