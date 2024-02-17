@@ -25,6 +25,11 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(String name, String description, StatusTask status, Duration duration, LocalDateTime startTime, int epicId) {
+        super(name, description, status, duration, startTime);
+        this.epicId = epicId;
+    }
+
     public int getEpicId() {
         return epicId;
     }
@@ -45,5 +50,16 @@ public class Subtask extends Task {
                 ", status='" + status + '\'' +
                 ", epicId=" + epicId +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subtask task = (Subtask) o;
+        return name.equals(task.name) &&
+                uniqueId == task.uniqueId &&
+                status == task.status &&
+                epicId == task.epicId;
     }
 }

@@ -6,6 +6,7 @@ import ru.application.tasktracking.objects.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface TaskManager {
@@ -27,7 +28,7 @@ public interface TaskManager {
 
     Subtask getSubtaskById(Integer key);
 
-    Integer creationTask(Task task) throws IOException;
+    Integer creationTask(Task task);
 
     Integer creationEpic(Epic epic);
 
@@ -50,4 +51,9 @@ public interface TaskManager {
     List<Task> getHistory();
     List<Task> getPrioritizedTasks();
 
+    HashMap<Integer, Task> getTaskMap();
+
+    HashMap<Integer, Epic> getEpicMap();
+
+    HashMap<Integer, Subtask> getSubtaskMap();
 }

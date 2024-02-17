@@ -1,9 +1,26 @@
 package ru.application.tasktracking;
 
 
+import ru.application.tasktracking.objects.Epic;
+import ru.application.tasktracking.objects.Subtask;
+import ru.application.tasktracking.service.InMemoryTaskManager;
+import ru.application.tasktracking.service.StatusTask;
+
 public class Main {
 
     public static void main(String[] args) {
+
+
+        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
+        Epic epic1 = new Epic("Epic #epicId1", "Epic description", StatusTask.NEW);
+        int epicId1 = inMemoryTaskManager.creationEpic(epic1);
+        System.out.println("эпики - " + inMemoryTaskManager.getEpics());
+
+        Subtask subtask1 = new Subtask("Subtask #sub1", "Subtask description", StatusTask.NEW, epicId1);
+        Subtask subtask2 = new Subtask("Subtask #sub2", "Subtask description", StatusTask.NEW, epicId1);
+        int sub1 = inMemoryTaskManager.creationSubtask(subtask1);
+        int sub2 = inMemoryTaskManager.creationSubtask(subtask2);
+        System.out.println("подзадачи - " + inMemoryTaskManager.getSubtasks());
 
 /*
 *

@@ -29,12 +29,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public static void main(String[] args) {
 
-        Path myFile = Paths.get("Tasks.csv");
+
+
+
+
+
+
+
+
+
+
+        /*Path myFile = Paths.get("Tasks.csv");
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(myFile);
 
         System.out.println("Создание");
         Task task1 = new Task("Task #taskId1", "Task description", StatusTask.NEW);
-        task1.setStartTime(LocalDateTime.of(2024,1,7,0,0));
+        task1.setStartTime(LocalDateTime.of(2024,1,1,0,0));
         task1.setDuration(Duration.ofMinutes(15));
         int taskId1 = fileBackedTasksManager.creationTask(task1);
 
@@ -42,7 +52,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         int epicId1 = fileBackedTasksManager.creationEpic(epic1);
 
         Subtask subtask1 = new Subtask("Subtask #sub1", "Subtask description", StatusTask.NEW, epicId1);
-        subtask1.setStartTime(LocalDateTime.of(2024,1,6,0,0));
+        subtask1.setStartTime(LocalDateTime.of(2024,1,2,0,0));
         subtask1.setDuration(Duration.ofMinutes(30));
         int sub1 = fileBackedTasksManager.creationSubtask(subtask1);
 
@@ -74,20 +84,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println("Приоритет сортировки");
 
         Task task2 = new Task("Task #taskId2", "Task description", StatusTask.NEW);
-        task2.setStartTime(LocalDateTime.of(2024,1,4,0,0));
-        task2.setDuration(Duration.ofMinutes(45));
+        //task2.setStartTime(LocalDateTime.of(2024,1,4,0,0));
+        //task2.setDuration(Duration.ofMinutes(45));
         int taskId2 = fileBackedTasksManager.creationTask(task2);
 
         Task task3 = new Task("Task #taskId3", "Task description", StatusTask.NEW);
+        //task3.setStartTime(LocalDateTime.of(2024,1,3,0,0));
+        //task3.setDuration(Duration.ofMinutes(0));
         int taskId3 = fileBackedTasksManager.creationTask(task3);
 
         Task task4 = new Task("Task #taskId4", "Task description", StatusTask.NEW);
-        task4.setStartTime(LocalDateTime.of(2024,1,5,0,0));
-        task4.setDuration(Duration.ofMinutes(45));
+        //task4.setStartTime(LocalDateTime.of(2024,1,5,0,0));
+        //task4.setDuration(Duration.ofMinutes(45));
         int taskId4 = fileBackedTasksManager.creationTask(task4);
 
 
-        System.out.println(fileBackedTasksManager.getPrioritizedTasks());
+        System.out.println(fileBackedTasksManager.getPrioritizedTasks());*/
 
     }
 

@@ -150,7 +150,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Integer creationSubtask(Subtask subtask) {
-        if(validationOfTheIntersection(subtask)) {
+        if (validationOfTheIntersection(subtask)) {
             this.newId++;
             subtask.setUniqueId(newId);
             subtaskMap.put(subtask.getUniqueId(), subtask);
@@ -164,18 +164,18 @@ public class InMemoryTaskManager implements TaskManager {
             updateTimeEpic(updateEpic);
             updateSetPrioritized();
             return subtask.getUniqueId();
-        }else {
+        } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
         }
     }
 
     @Override
     public void updateTask(Task task) {
-        if(validationOfTheIntersection(task)) {
-        int id = task.getUniqueId();
-        taskMap.put(id, task);
-        updateSetPrioritized();
-        }else {
+        if (validationOfTheIntersection(task)) {
+            int id = task.getUniqueId();
+            taskMap.put(id, task);
+            updateSetPrioritized();
+        } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
         }
     }
@@ -185,16 +185,17 @@ public class InMemoryTaskManager implements TaskManager {
         int id = epic.getUniqueId();
         epic.setListSubtaskId(epicMap.get(id).getListSubtaskId());
         epicMap.put(id, epic);
+        updateStatusEpic(epic);
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        if(validationOfTheIntersection(subtask)) {
-        subtaskMap.put(subtask.getUniqueId(), subtask);
-        updateStatusEpic(epicMap.get(subtask.getEpicId()));
-        updateTimeEpic(epicMap.get(subtask.getEpicId()));
-        updateSetPrioritized();
-        }else {
+        if (validationOfTheIntersection(subtask)) {
+            subtaskMap.put(subtask.getUniqueId(), subtask);
+            updateStatusEpic(epicMap.get(subtask.getEpicId()));
+            updateTimeEpic(epicMap.get(subtask.getEpicId()));
+            updateSetPrioritized();
+        } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
         }
     }
@@ -223,24 +224,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void updateTimeEpic(Epic epic) {
         Duration duration = Duration.ofMinutes(0);
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime endTime = startTime;
+        LocalDateTime startTime = null;
+        LocalDateTime endTime = null;
 
         if (!epic.getListSubtaskId().isEmpty()) {
             for (Integer idList : epic.getListSubtaskId()) {
                 Subtask subtask = subtaskMap.get(idList);
                 duration = duration.plusMinutes(subtask.getDuration().toMinutes());
-                if (startTime.isBefore(subtask.getStartTime())) {
+                if (startTime == null && subtask.getStartTime() != null) {
                     startTime = subtask.getStartTime();
+                } else if (subtask.getStartTime() != null) {
+                    if (startTime.isAfter(subtask.getStartTime())) {
+                        startTime = subtask.getStartTime();
+                    }
                 }
-                if (endTime.isAfter(subtask.getEndTime())) {
+                if (endTime == null && subtask.getEndTime() != null) {
                     endTime = subtask.getEndTime();
+                } else if (subtask.getEndTime() != null) {
+                    if (endTime.isBefore(subtask.getEndTime())) {
+                        endTime = subtask.getStartTime();
+                    }
                 }
+
             }
 
-        } else {
-            startTime = null;
-            endTime = null;
         }
         epic.setDuration(duration);
         epic.setStartTime(startTime);
@@ -252,7 +259,7 @@ public class InMemoryTaskManager implements TaskManager {
         sortPrioritizedTasks.clear();
         sortPrioritizedTasks.addAll(taskMap.values());
         sortPrioritizedTasks.addAll(subtaskMap.values());
-        updateTimeDurationToTableCheck();
+        createTimeDurationToTableCheck();
     }
 
     private boolean validationOfTheIntersection(Task task) { // сложность от 1 в лучш.сл. до от N значений (периода/констант времени).
@@ -271,39 +278,38 @@ public class InMemoryTaskManager implements TaskManager {
             // достаем старый таск, если ранее сохранялся
             oldTaskMapTime = oldTask.getStartTime();
         }
+
         if (oldTaskMapTime != null) { // если у прошлого имеющегося таска нет времени, то поф идем дальше
             long checkOldDuration = oldTask.getDuration().toMinutes();
             if (checkOldDuration == 0) { // проверяем менялось ли значение времени в новом
+
                 if (timeTransferTask.equals(oldTaskMapTime)) {
                     return true;
                 } else {
                     return !checkTableTimeOfPrioritized.contains(timeTransferTask);
                 }
+
             } else {
                 List<LocalDateTime> checkListTime = new ArrayList<>();
-
                 LocalDateTime timeEnd = timeTransferTask.plusMinutes(durationTransferTask);
+
                 for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
                      forTime = forTime.plusMinutes(TIME_CONSTANT)) {
                     checkListTime.add(forTime);
                 } //собрали значения периодов от нового таска
 
                 timeEnd = oldTaskMapTime.plusMinutes(checkOldDuration);
+
                 for (LocalDateTime forTime = oldTaskMapTime; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
                      forTime = forTime.plusMinutes(TIME_CONSTANT)) {
                     checkListTime.remove(forTime);
                 } // убираем из листа с периодами уже занятые периоды старым таском. они нам и так доступны
 
-                for (LocalDateTime time : checkListTime){
-                    if(checkTableTimeOfPrioritized.contains(time)){
+                for (LocalDateTime time : checkListTime) {
+                    if (checkTableTimeOfPrioritized.contains(time)) {
                         return false;
                     }
                 } // если хоть один имеется, то выходим на отмену, так как время занято
-
-                for (LocalDateTime time : checkListTime){
-                    checkTableTimeOfPrioritized.add(time);
-                } // занимаем места и идем дальше на выход
-
             }
 
             // task 5-7 .......  .....2-6..../....6-7task..../....7-8..../.....1-9...../...1-9task....
@@ -312,13 +318,9 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             // проверка только свободных значений для нового таска
             if (durationTransferTask == 0) {
-                if (checkTableTimeOfPrioritized.contains(timeTransferTask)) {
-                    return false;
-                } else {
-                    checkTableTimeOfPrioritized.add(timeTransferTask);
-                    return true;
-                }
+                return true;
             }
+
             LocalDateTime timeEnd = timeTransferTask.plusMinutes(durationTransferTask);
             long saveDuration = -TIME_CONSTANT;
             for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
@@ -328,22 +330,31 @@ public class InMemoryTaskManager implements TaskManager {
                 } // если уже есть значение, то не считаем его. если нет, то сохраняем в save
             }
             if (saveDuration == durationTransferTask) { // если ниодного значения не занято, то будет равно
-                for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd); forTime = forTime.plusMinutes(TIME_CONSTANT)) {
-                    checkTableTimeOfPrioritized.add(forTime);
-                }
-
-
                 return true;
             }
             return false;
         }
     }
 
-    private void updateTimeDurationToTableCheck() {
+    private void createTimeDurationToTableCheck() {
         checkTableTimeOfPrioritized.clear();
-        boolean swap = true;
+        LocalDateTime time;
+        long saveDuration;
+        LocalDateTime timeEnd;
         for (Task task : sortPrioritizedTasks) {
-            swap = validationOfTheIntersection(task);
+
+            time = task.getStartTime();
+            if (time == null) {
+                return;
+            }
+            saveDuration = task.getDuration().toMinutes();
+            if (saveDuration > 0) {
+                timeEnd = time.plusMinutes(saveDuration);
+                for (LocalDateTime forTime = time; forTime.isBefore(timeEnd);
+                     forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                    checkTableTimeOfPrioritized.add(forTime);
+                }
+            }
         }
     }
 

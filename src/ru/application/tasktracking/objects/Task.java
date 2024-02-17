@@ -5,7 +5,6 @@ import ru.application.tasktracking.service.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class Task {
     protected String name;
@@ -25,6 +24,7 @@ public class Task {
         this.duration = duration;
         this.startTime = startTime;
     }
+
     public Task(String name, String description, StatusTask status, int uniqueId) {
         this.name = name;
         this.description = description;
@@ -38,13 +38,24 @@ public class Task {
         this.status = status;
     }
 
-
+    public Task(String name, String description, StatusTask status, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
 
     public int getUniqueId() {
         return uniqueId;
     }
-    public LocalDateTime getEndTime(){
-        return startTime.plusMinutes(duration.toMinutes());
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        } else {
+            return startTime.plusMinutes(duration.toMinutes());
+        }
     }
 
     public Duration getDuration() {
@@ -94,6 +105,15 @@ public class Task {
                 "name='" + name + '\'' +
                 ", status='" + status + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return name.equals(task.name) &&
+                uniqueId == task.uniqueId && status == task.status;
     }
 
 }

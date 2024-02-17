@@ -10,72 +10,57 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EpicTest {
 
-    private static InMemoryTaskManager memoryTaskManager;
-    private static InMemoryTaskManager memoryTaskManagerSubtask;
-    private static Epic epic1;
+    InMemoryTaskManager memoryTaskManager;
+    int createEpic;
+    Epic epic1;
     Subtask subtask1;
     Subtask subtask2;
-    private static int epicId1;
-    private static int sub1;
-    private static int sub2;
 
-
-/*
     @BeforeEach
-    void creatingTaskManager() {
+    public void cerateMemory(){
         memoryTaskManager = new InMemoryTaskManager();
-        memoryTaskManagerSubtask = new InMemoryTaskManager();
-        epic1 = new Epic("Test Epic #epicId1", "Test Epic description", StatusTask.NEW);
-        epicId1 = memoryTaskManager.creationEpic(epic1);
-        epicId1 = memoryTaskManagerSubtask.creationEpic(epic1);
+        epic1 = new Epic("#epicId1", "description", StatusTask.NEW);
+        createEpic = memoryTaskManager.creationEpic(epic1); //1
+    }
 
-        subtask1 = new Subtask("Subtask #sub1", "Subtask description", StatusTask.NEW, epicId1);
-        subtask2 = new Subtask("Subtask #sub2", "Subtask description", StatusTask.NEW, epicId1);
-        sub1 = memoryTaskManagerSubtask.creationSubtask(subtask1);
-        sub2 = memoryTaskManagerSubtask.creationSubtask(subtask2);
+    private void createSubtask(StatusTask status1, StatusTask status2){
+
+        subtask1 = new Subtask("#sub1", "description",
+                status1, createEpic);
+        subtask2 = new Subtask("#sub2", "description",
+                status2, createEpic);
+        int sub1 = memoryTaskManager.creationSubtask(subtask1);
+        int sub2 = memoryTaskManager.creationSubtask(subtask2);
     }
 
     @Test
     public void checkingStatusWithAnEmptyList() {
-        assertEquals(StatusTask.NEW, memoryTaskManager.getEpicById(epicId1).status, "Статусы не совпадают.");
+        assertEquals(StatusTask.NEW, memoryTaskManager.getEpicById(createEpic).getStatus(), "Статусы не совпадают.");
     }
-
-    @Test
-    public void checkingStatusWithAnEmptyListOfStatusDone() {
-        memoryTaskManager.updateEpic(new Epic("Test Epic #epicId1", "Test Epic description",
-                StatusTask.DONE, epicId1));
-        assertEquals(StatusTask.DONE, memoryTaskManager.getEpicById(epicId1).status, "Статусы не совпадают.");
-    }
-
 
 
     @Test
     public void checkingStatusSfEpicFromChangingSubtasksStatusNew() {
-        assertEquals(StatusTask.NEW, memoryTaskManagerSubtask.getEpicById(epicId1).status, "Статусы Эпик не совпадают.");
+        createSubtask(StatusTask.NEW, StatusTask.NEW);
+        assertEquals(StatusTask.NEW, memoryTaskManager.getEpicById(createEpic).getStatus(), "Статусы не совпадают.");
     }
+
 
     @Test
     public void checkingStatusSfEpicFromChangingSubtasksStatusDone() {
-        memoryTaskManagerSubtask.updateSubtask(new Subtask("Subtask #sub1", "Subtask description",
-                StatusTask.DONE, sub1, epicId1));
-        memoryTaskManagerSubtask.updateSubtask(new Subtask("Subtask #sub2", "Subtask description",
-                StatusTask.DONE, sub2, epicId1));
-        assertEquals(StatusTask.DONE, memoryTaskManagerSubtask.getEpicById(epicId1).status, "Статусы Эпик не совпадают.");
+        createSubtask(StatusTask.DONE, StatusTask.DONE);
+        assertEquals(StatusTask.DONE, memoryTaskManager.getEpicById(createEpic).status, "Статусы Эпик не совпадают.");
     }
 
     @Test
     public void checkingStatusWithOneNewAndDone() {
-        memoryTaskManagerSubtask.updateSubtask(new Subtask("Subtask #sub1", "Subtask description",
-                StatusTask.DONE, sub1, epicId1));
-        assertEquals(StatusTask.IN_PROGRESS, memoryTaskManagerSubtask.getEpicById(epicId1).status, "Статусы Эпик не совпадают.");
+        createSubtask(StatusTask.NEW, StatusTask.DONE);
+        assertEquals(StatusTask.IN_PROGRESS, memoryTaskManager.getEpicById(createEpic).status, "Статусы Эпик не совпадают.");
     }
 
     @Test
     public void checkingWithSubtasksInStatusProgress() {
-        memoryTaskManagerSubtask.updateSubtask(new Subtask("Subtask #sub1", "Subtask description",
-                StatusTask.IN_PROGRESS, sub1, epicId1));
-        memoryTaskManagerSubtask.updateSubtask(new Subtask("Subtask #sub2", "Subtask description",
-                StatusTask.IN_PROGRESS, sub2, epicId1));
-        assertEquals(StatusTask.IN_PROGRESS, memoryTaskManagerSubtask.getEpicById(epicId1).status, "Статусы Эпик не совпадают.");
-    }*/
+        createSubtask(StatusTask.IN_PROGRESS, StatusTask.IN_PROGRESS);
+        assertEquals(StatusTask.IN_PROGRESS, memoryTaskManager.getEpicById(createEpic).status, "Статусы Эпик не совпадают.");
+    }
 }
