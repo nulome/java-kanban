@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,84 +24,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     static final DateTimeFormatter formater = DateTimeFormatter.ofPattern("dd.MM.yyyy..HH:mm");
-
-
-    public static void main(String[] args) {
-
-
-
-
-
-
-
-
-
-
-
-        /*Path myFile = Paths.get("Tasks.csv");
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(myFile);
-
-        System.out.println("Создание");
-        Task task1 = new Task("Task #taskId1", "Task description", StatusTask.NEW);
-        task1.setStartTime(LocalDateTime.of(2024,1,1,0,0));
-        task1.setDuration(Duration.ofMinutes(15));
-        int taskId1 = fileBackedTasksManager.creationTask(task1);
-
-        Epic epic1 = new Epic("Epic #epicId1", "Epic description", StatusTask.NEW);
-        int epicId1 = fileBackedTasksManager.creationEpic(epic1);
-
-        Subtask subtask1 = new Subtask("Subtask #sub1", "Subtask description", StatusTask.NEW, epicId1);
-        subtask1.setStartTime(LocalDateTime.of(2024,1,2,0,0));
-        subtask1.setDuration(Duration.ofMinutes(30));
-        int sub1 = fileBackedTasksManager.creationSubtask(subtask1);
-
-        System.out.println("таск - " + fileBackedTasksManager.getTasks());
-        System.out.println("эпики - " + fileBackedTasksManager.getEpics());
-        System.out.println("подзадачи - " + fileBackedTasksManager.getSubtasks());
-
-
-        Task task = fileBackedTasksManager.getTaskById(taskId1);
-        task = fileBackedTasksManager.getEpicById(epicId1);
-        task = fileBackedTasksManager.getSubtaskById(sub1);
-
-        System.out.println("История " + fileBackedTasksManager.getHistory());
-
-
-        System.out.println();
-        System.out.println("Сохранение/запись");
-
-        FileBackedTasksManager fileBacked = new FileBackedTasksManager(myFile);
-        System.out.println("История fileBacked" + fileBacked.getHistory());
-
-        fileBacked = fileBacked.loadFromFile(myFile);
-        System.out.println("История fileBacked" + fileBacked.getHistory());
-
-
-
-
-        System.out.println();
-        System.out.println("Приоритет сортировки");
-
-        Task task2 = new Task("Task #taskId2", "Task description", StatusTask.NEW);
-        //task2.setStartTime(LocalDateTime.of(2024,1,4,0,0));
-        //task2.setDuration(Duration.ofMinutes(45));
-        int taskId2 = fileBackedTasksManager.creationTask(task2);
-
-        Task task3 = new Task("Task #taskId3", "Task description", StatusTask.NEW);
-        //task3.setStartTime(LocalDateTime.of(2024,1,3,0,0));
-        //task3.setDuration(Duration.ofMinutes(0));
-        int taskId3 = fileBackedTasksManager.creationTask(task3);
-
-        Task task4 = new Task("Task #taskId4", "Task description", StatusTask.NEW);
-        //task4.setStartTime(LocalDateTime.of(2024,1,5,0,0));
-        //task4.setDuration(Duration.ofMinutes(45));
-        int taskId4 = fileBackedTasksManager.creationTask(task4);
-
-
-        System.out.println(fileBackedTasksManager.getPrioritizedTasks());*/
-
-    }
-
 
     private void save() {
         try (Writer fileWriter = new FileWriter(String.valueOf(saveFile.getFileName()))) {
@@ -207,7 +128,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return listHistory;
     }
 
-    static FileBackedTasksManager loadFromFile(Path file) {
+
+    public static FileBackedTasksManager loadFromFile(Path file) {
 
         FileBackedTasksManager fileBacked = new FileBackedTasksManager(file);
 

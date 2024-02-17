@@ -38,18 +38,28 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void checkingCreationOfTaskThroughManager() {
-        Task taskTest = new Task("Test", "TestDescription", StatusTask.NEW, 1);
-        Task taskNoId = new Task("Test", "TestDescription", StatusTask.NEW);
-        Integer number = manager.creationTask(taskNoId);
-        assertEquals(taskTest, manager.getTaskById(number), "Задачи не равны");
+        final Task taskNoId = new Task("Test", "TestDescription", StatusTask.NEW);
+        final Integer actual = manager.creationTask(taskNoId);
+        final Integer expected = 1;
+        assertEquals(expected, actual, "Неверное значение номера задачи");
+
+        final Task taskExpected = manager.getTaskById(actual);
+        assertNotNull(taskExpected, "Задача не найдена.");
+        assertEquals(taskNoId, taskExpected, "Задачи не совпадают.");
+
+        List<Task> tasks = manager.getTasks();
+
+        assertNotNull(tasks, "Задачи на возвращаются.");
+        assertEquals(1, tasks.size(), "Неверное количество задач.");
+        assertEquals(taskNoId, tasks.get(0), "Задачи не совпадают.");
     }
 
     @Test
     void checkingCreationOfEpicThroughManager() {
-        Epic taskTest = new Epic("Test", "TestDescription", StatusTask.NEW, 1);
         Epic taskNoId = new Epic("Test", "TestDescription", StatusTask.NEW);
-        Integer number = manager.creationEpic(taskNoId);
-        assertEquals(taskTest, manager.getEpicById(number), "Задачи не равны");
+        Integer actual = manager.creationEpic(taskNoId);
+        Integer expected = 1;
+        assertEquals(expected, actual, "Неверное значение номера задачи");
     }
 
     @Test
@@ -58,8 +68,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Integer epicId1 = manager.creationEpic(epic);
 
         Subtask subtaskTest = new Subtask("Test", "TestDescription", StatusTask.NEW, epicId1);
-        Integer number = manager.creationSubtask(subtaskTest);
-        assertEquals(subtaskTest, manager.getSubtaskById(number), "Задачи не равны");
+        Integer actual = manager.creationSubtask(subtaskTest);
+        Integer expected = 2;
+        assertEquals(expected, actual, "Неверное значение номера задачи");
 
         Subtask subtaskNull = new Subtask("Test", "TestDescription", StatusTask.NEW, 7);
         RuntimeException exceptionCreateNoEpic = assertThrows(NullPointerException.class, () -> {
@@ -71,8 +82,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void checkingReceiptOfTaskByNumberTask() {
         Integer number = manager.creationTask(new Task("Test", "TestDescription", StatusTask.NEW));
-        Task taskCheck = new Task("Test", "TestDescription", StatusTask.NEW, 1);
-        assertEquals(taskCheck, manager.getTaskById(1), "Задачи не равны");
+        Task taskExpected = new Task("Test", "TestDescription", StatusTask.NEW, 1);
+        assertEquals(taskExpected, manager.getTaskById(1), "Задачи не равны");
 
         RuntimeException exception = assertThrows(NullPointerException.class, () -> {
             manager.getTaskById(2);
@@ -83,8 +94,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void checkingReceiptOfTaskByNumberEpic() {
         Integer number = manager.creationEpic(new Epic("Test", "TestDescription", StatusTask.NEW));
-        Epic taskCheck = new Epic("Test", "TestDescription", StatusTask.NEW, 1);
-        assertEquals(taskCheck, manager.getEpicById(1), "Задачи не равны");
+        Epic taskExpected = new Epic("Test", "TestDescription", StatusTask.NEW, 1);
+        assertEquals(taskExpected, manager.getEpicById(1), "Задачи не равны");
 
         RuntimeException exception = assertThrows(NullPointerException.class, () -> {
             manager.getEpicById(2);
@@ -96,9 +107,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void checkingReceiptOfTaskByNumberSubtask() {
         Integer elementaryEpic = manager.creationEpic(new Epic("Test", "TestDescription", StatusTask.NEW));
         Integer number = manager.creationSubtask(new Subtask("Test", "TestDescription", StatusTask.NEW, elementaryEpic));
-        Subtask subtaskCheck = new Subtask("Test", "TestDescription", StatusTask.NEW, 2, elementaryEpic);
+        Subtask subtaskExpected = new Subtask("Test", "TestDescription", StatusTask.NEW, 2, elementaryEpic);
 
-        assertEquals(subtaskCheck, manager.getSubtaskById(2), "Задачи не равны");
+        assertEquals(subtaskExpected, manager.getSubtaskById(2), "Задачи не равны");
 
         RuntimeException exception = assertThrows(NullPointerException.class, () -> {
             manager.getSubtaskById(1);
@@ -110,40 +121,40 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void checkingDeletingFromCollectionByTaskID() {
         testesFillingInTasks();
-        HashMap<Integer, Task> taskMapTestEmpty = new HashMap<>();
+        HashMap<Integer, Task> expected = new HashMap<>();
         manager.delIdTaskMap(numberTaskNEW);
-        assertEquals(taskMapTestEmpty, manager.getTaskMap(), "Задача не удалена");
+        assertEquals(expected, manager.getTaskMap(), "Задача не удалена");
     }
 
     @Test
     void checkingDeletingFromCollectionByEpicID() {
         testesFillingInTasks();
-        HashMap<Integer, Epic> taskMapTestEmpty = new HashMap<>();
+        HashMap<Integer, Epic> expectedEpic = new HashMap<>();
         manager.delIdEpicMap(numberEpicNEW);
-        assertEquals(taskMapTestEmpty, manager.getEpicMap(), "Задача не удалена");
+        assertEquals(expectedEpic, manager.getEpicMap(), "Задача не удалена");
 
 
-        HashMap<Integer, Subtask> taskSubtaskMapTestEmpty = new HashMap<>();
-        assertEquals(taskSubtaskMapTestEmpty, manager.getSubtaskMap(), "Задача не удалена");
+        HashMap<Integer, Subtask> expectedListSub = new HashMap<>();
+        assertEquals(expectedListSub, manager.getSubtaskMap(), "Задача не удалена");
 
     }
 
     @Test
     void checkingDeletingFromCollectionBySubtaskID() {
         testesFillingInTasks();
-        HashMap<Integer, Subtask> taskSubtaskMapTestEmpty = new HashMap<>();
+        HashMap<Integer, Subtask> expected = new HashMap<>();
 
         manager.delIdSubtaskMap(numberSubtaskNEW);
-        assertEquals(taskSubtaskMapTestEmpty, manager.getSubtaskMap(), "Задача не удалена");
+        assertEquals(expected, manager.getSubtaskMap(), "Задача не удалена");
     }
 
     @Test
     void checkingTasksCleaning() {
         testesFillingInTasks();
-        HashMap<Integer, Task> taskMapTestEmpty = new HashMap<>();
+        HashMap<Integer, Task> expected = new HashMap<>();
 
         manager.clearTaskMap();
-        assertEquals(taskMapTestEmpty, manager.getTaskMap(), "Задачи не почищены");
+        assertEquals(expected, manager.getTaskMap(), "Задачи не почищены");
     }
 
     @Test
@@ -170,84 +181,84 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void checkingListTaskReturn() {
         testesFillingInTasks();
         taskEmptyNEW.setUniqueId(1);
-        ArrayList<Task> taskListTest = new ArrayList<>();
-        taskListTest.add(taskEmptyNEW);
+        ArrayList<Task> taskListExpected = new ArrayList<>();
+        taskListExpected.add(taskEmptyNEW);
 
-        assertEquals(taskListTest, manager.getTasks(), "Списки задач не совпадают");
+        assertEquals(taskListExpected, manager.getTasks(), "Списки задач не совпадают");
     }
 
     @Test
     void checkingListEpicReturn() {
         testesFillingInTasks();
-        ArrayList<Epic> epicListTest = new ArrayList<>();
-        epicListTest.add(epicEmptyNEW);
+        ArrayList<Epic> epicListExpected = new ArrayList<>();
+        epicListExpected.add(epicEmptyNEW);
 
-        assertEquals(epicListTest, manager.getEpics(), "Списки задач не совпадают");
+        assertEquals(epicListExpected, manager.getEpics(), "Списки задач не совпадают");
     }
 
     @Test
     void checkingListSubtaskReturn() {
         testesFillingInTasks();
-        ArrayList<Subtask> subtaskListTest = new ArrayList<>();
-        subtaskListTest.add(subtaskNEWToEpicEmpty);
+        ArrayList<Subtask> subtaskListExpected = new ArrayList<>();
+        subtaskListExpected.add(subtaskNEWToEpicEmpty);
 
-        assertEquals(subtaskListTest, manager.getSubtasks(), "Списки задач не совпадают");
+        assertEquals(subtaskListExpected, manager.getSubtasks(), "Списки задач не совпадают");
     }
 
 
     @Test
     void checkingListSubtaskContainsToEpicReturn() {
         testesFillingInTasks();
-        ArrayList<Subtask> subtaskListTest = new ArrayList<>();
-        subtaskListTest.add(subtaskNEWToEpicEmpty);
+        ArrayList<Subtask> subtaskListExpected = new ArrayList<>();
+        subtaskListExpected.add(subtaskNEWToEpicEmpty);
 
-        assertEquals(subtaskListTest, manager.subtasksListToEpic(numberEpicNEW), "Список подзадач по эпику не совпадает");
+        assertEquals(subtaskListExpected, manager.subtasksListToEpic(numberEpicNEW), "Список подзадач по эпику не совпадает");
     }
 
     @Test
     void checkingUpdateTaskInManager() {
         testesFillingInTasks();
-        Task checkTask = new Task("TestNewTask", "TestDescription", StatusTask.DONE, numberTaskNEW);
+        Task expectedTask = new Task("TestNewTask", "TestDescription", StatusTask.DONE, numberTaskNEW);
         manager.updateTask(new Task("TestNewTask", "TestDescription", StatusTask.DONE, numberTaskNEW));
 
-        assertEquals(checkTask, manager.getTaskById(numberTaskNEW), "Задачи не равны");
+        assertEquals(expectedTask, manager.getTaskById(numberTaskNEW), "Задачи не равны");
     }
 
     @Test
     void checkingUpdateEpicInManager() {
         testesFillingInTasks();
-        Epic checkEpic = new Epic("TestNewEpic", "TestDescription", StatusTask.NEW, numberEpicNEW);
+        Epic expectedEpic = new Epic("TestNewEpic", "TestDescription", StatusTask.NEW, numberEpicNEW);
         manager.updateEpic(new Epic("TestNewEpic", "TestDescription", StatusTask.DONE, numberEpicNEW));
 
-        assertEquals(checkEpic, manager.getEpicById(numberEpicNEW), "Задачи не равны");
+        assertEquals(expectedEpic, manager.getEpicById(numberEpicNEW), "Задачи не равны");
     }
 
     @Test
     void checkingUpdateSubtaskInManager() {
         testesFillingInTasks();
-        Subtask checkSubtask = new Subtask("TestNewSubtask", "TestDescription", StatusTask.DONE, numberSubtaskNEW, numberEpicNEW);
+        Subtask expectedSubtask = new Subtask("TestNewSubtask", "TestDescription", StatusTask.DONE, numberSubtaskNEW, numberEpicNEW);
         manager.updateSubtask(new Subtask("TestNewSubtask", "TestDescription", StatusTask.DONE, numberSubtaskNEW, numberEpicNEW));
 
-        assertEquals(checkSubtask, manager.getSubtaskById(numberSubtaskNEW), "Задачи не равны");
+        assertEquals(expectedSubtask, manager.getSubtaskById(numberSubtaskNEW), "Задачи не равны");
     }
 
     @Test
     void checkingHistorySavingInOrderItWasAdded() {
         testesFillingInTasks();
-        ArrayList<Task> tasksListTest = new ArrayList<>();
-        assertEquals(tasksListTest, manager.getHistory(), "Истории не совпадают");
+        ArrayList<Task> tasksListExpected = new ArrayList<>();
+        assertEquals(tasksListExpected, manager.getHistory(), "Истории не совпадают");
 
-        tasksListTest.add(taskEmptyNEW);
+        tasksListExpected.add(taskEmptyNEW);
         Task checkingngTask = manager.getTaskById(numberTaskNEW);
-        assertEquals(tasksListTest, manager.getHistory(), "Истории не совпадают");
+        assertEquals(tasksListExpected, manager.getHistory(), "Истории не совпадают");
 
-        tasksListTest.clear();
-        tasksListTest.add(subtaskNEWToEpicEmpty);
-        tasksListTest.add(epicEmptyNEW);
-        tasksListTest.add(taskEmptyNEW);
+        tasksListExpected.clear();
+        tasksListExpected.add(subtaskNEWToEpicEmpty);
+        tasksListExpected.add(epicEmptyNEW);
+        tasksListExpected.add(taskEmptyNEW);
         checkingngTask = manager.getEpicById(numberEpicNEW);
         checkingngTask = manager.getSubtaskById(numberSubtaskNEW);
-        assertEquals(tasksListTest, manager.getHistory(), "Истории не совпадают");
+        assertEquals(tasksListExpected, manager.getHistory(), "Истории не совпадают");
     }
 
     @Test
@@ -263,22 +274,31 @@ abstract class TaskManagerTest<T extends TaskManager> {
         manager.updateEpic(checkEpic);
         manager.updateSubtask(checkSubtask);
 
-        List<Task> listTestCheck = new ArrayList<>();
-        listTestCheck.add(checkTask);
-        listTestCheck.add(checkSubtask);
-        assertEquals(listTestCheck, manager.getPrioritizedTasks(), "Сортировка по приоритету не совпадает");
+        List<Task> listExpected = new ArrayList<>();
+        listExpected.add(checkTask);
+        listExpected.add(checkSubtask);
+        assertEquals(listExpected, manager.getPrioritizedTasks(), "Сортировка по приоритету не совпадает");
 
         Subtask checkSubtask2 = new Subtask("TestNewSubtask2", "TestDescription", StatusTask.NEW,
                 Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 0, 30), numberEpicNEW);
         int sub2 = manager.creationSubtask(checkSubtask2);
         Subtask checkSubtask3 = new Subtask("TestNewSubtask3", "TestDescription", StatusTask.NEW, numberEpicNEW);
         int sub3 = manager.creationSubtask(checkSubtask3);
-        listTestCheck.add(1, checkSubtask2);
-        listTestCheck.add(checkSubtask3);
-        assertEquals(listTestCheck, manager.getPrioritizedTasks(), "Сортировка по приоритету не совпадает");
+        listExpected.add(1, checkSubtask2);
+        listExpected.add(checkSubtask3);
+        assertEquals(listExpected, manager.getPrioritizedTasks(), "Сортировка по приоритету не совпадает");
 
         manager.delIdSubtaskMap(sub2);
-        listTestCheck.remove(1);
-        assertEquals(listTestCheck, manager.getPrioritizedTasks(), "Сортировка по приоритету после удаления не совпадает");
+        listExpected.remove(1);
+        assertEquals(listExpected, manager.getPrioritizedTasks(), "Сортировка по приоритету после удаления не совпадает");
+
+        System.out.println(manager.getPrioritizedTasks());
+
+        Task taskError = new Task("TestNewTask", "TestDescription", StatusTask.NEW,
+                Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 0, 0));
+        ManagerSaveException exceptionAddTaskSameTime = assertThrows(ManagerSaveException.class, () -> {
+            manager.creationTask(taskError);
+        }, "Ожидалось исключение ManagerSaveException");
+        assertEquals("Время для выполнения задачи уже занято.", exceptionAddTaskSameTime.getMessage());
     }
 }

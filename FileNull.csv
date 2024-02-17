@@ -1,6 +1,10 @@
 id,type,name,status,description,duration,startTime,epic
-1,TASK,Test,NEW,TestDescription,0,null,
-2,EPIC,Test,NEW,TestDescription,0,null,
-3,SUBTASK,Test,NEW,TestDescription,0,null,2
+1,TASK,task1,NEW,TestDescription,15,01.01.2024..02:00,
+2,TASK,task2,NEW,TestDescription,15,01.01.2024..05:00,
+3,TASK,task3,NEW,TestDescription,15,01.01.2024..03:00,
+4,TASK,task7,NEW,TestDescription,0,null,
+5,TASK,task4,NEW,TestDescription,15,01.01.2024..00:00,
+6,TASK,task5,NEW,TestDescription,15,01.01.2024..04:00,
+7,TASK,task6,NEW,TestDescription,0,01.01.2024..04:00,
+8,TASK,task8,NEW,TestDescription,0,null,
 
-1,2,3
