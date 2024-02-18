@@ -13,8 +13,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, Task> taskMap = new HashMap<>();
     protected HashMap<Integer, Epic> epicMap = new HashMap<>();
     protected HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
-    TasksComparator tasksComparator = new TasksComparator();
-    protected TreeSet<Task> sortPrioritizedTasks = new TreeSet<>(tasksComparator);
+    protected TreeSet<Task> sortPrioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime,
+            Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getUniqueId));
     private final HashSet<LocalDateTime> checkTableTimeOfPrioritized = new HashSet<>();
     static final long TIME_CONSTANT = 15;
 
@@ -77,9 +77,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearTaskMap() {
         for (Task task : taskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
+            updateSetPrioritizedDelete(task);
         }
         taskMap.clear();
-        updateSetPrioritized();
     }
 
     @Override
@@ -89,10 +89,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Task task : subtaskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
+            updateSetPrioritizedDelete(task);
         }
         epicMap.clear();
         subtaskMap.clear();
-        updateSetPrioritized();
     }
 
     @Override
@@ -104,9 +104,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Task task : subtaskMap.values()) {
             inHistory.removeHistory(task.getUniqueId());
+            updateSetPrioritizedDelete(task);
         }
         subtaskMap.clear();
-        updateSetPrioritized();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class InMemoryTaskManager implements TaskManager {
             this.newId++;
             task.setUniqueId(newId);
             taskMap.put(task.getUniqueId(), task);
-            updateSetPrioritized();
+            updateSetPrioritizedAdd(task);
             return newId;
         } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
@@ -162,7 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             updateStatusEpic(updateEpic);
             updateTimeEpic(updateEpic);
-            updateSetPrioritized();
+            updateSetPrioritizedAdd(subtask);
             return subtask.getUniqueId();
         } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
@@ -173,8 +173,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         if (validationOfTheIntersection(task)) {
             int id = task.getUniqueId();
+            updateSetPrioritizedDelete(taskMap.get(id));
             taskMap.put(id, task);
-            updateSetPrioritized();
+            updateSetPrioritizedAdd(task);
         } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
         }
@@ -191,10 +192,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (validationOfTheIntersection(subtask)) {
+            updateSetPrioritizedDelete(subtaskMap.get(subtask.getUniqueId()));
             subtaskMap.put(subtask.getUniqueId(), subtask);
+            updateSetPrioritizedAdd(subtask);
+
             updateStatusEpic(epicMap.get(subtask.getEpicId()));
             updateTimeEpic(epicMap.get(subtask.getEpicId()));
-            updateSetPrioritized();
         } else {
             throw new ManagerSaveException("Время для выполнения задачи уже занято.");
         }
@@ -255,14 +258,49 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-    private void updateSetPrioritized() {
-        sortPrioritizedTasks.clear();
-        sortPrioritizedTasks.addAll(taskMap.values());
-        sortPrioritizedTasks.addAll(subtaskMap.values());
-        createTimeDurationToTableCheck();
+    private void updateSetPrioritizedAdd(Task task) {
+        sortPrioritizedTasks.add(task);
+        updateTimeDurationToTableCheckAdd(task);
     }
 
-    private boolean validationOfTheIntersection(Task task) { // сложность от 1 в лучш.сл. до от N значений (периода/констант времени).
+    private void updateSetPrioritizedDelete(Task task) {
+        sortPrioritizedTasks.remove(task);
+        updateTimeDurationToTableCheckDelete(task);
+    }
+
+    private void updateTimeDurationToTableCheckAdd(Task task) {
+        LocalDateTime time = task.getStartTime();
+        if (time == null) {
+            return;
+        }
+
+        long saveDuration = task.getDuration().toMinutes();
+        if (saveDuration > 0) {
+            LocalDateTime timeEnd = time.plusMinutes(saveDuration);
+            for (LocalDateTime forTime = time; forTime.isBefore(timeEnd);
+                 forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                checkTableTimeOfPrioritized.add(forTime);
+            }
+        }
+    }
+
+    private void updateTimeDurationToTableCheckDelete(Task task) {
+        LocalDateTime time = task.getStartTime();
+        if (time == null) {
+            return;
+        }
+        long saveDuration = task.getDuration().toMinutes();
+        if (saveDuration > 0) {
+            LocalDateTime timeEnd = time.plusMinutes(saveDuration);
+            for (LocalDateTime forTime = time; forTime.isBefore(timeEnd);
+                 forTime = forTime.plusMinutes(TIME_CONSTANT)) {
+                checkTableTimeOfPrioritized.remove(forTime);
+            }
+        }
+
+    }
+
+    private boolean validationOfTheIntersection(Task task) {
         LocalDateTime timeTransferTask = task.getStartTime();
         if (timeTransferTask == null) {
             return true;
@@ -275,13 +313,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskMap.containsKey(task.getUniqueId()) || subtaskMap.containsKey(task.getUniqueId())) {
             oldTask = taskMap.containsKey(task.getUniqueId()) ?
                     taskMap.get(task.getUniqueId()) : subtaskMap.get(task.getUniqueId());
-            // достаем старый таск, если ранее сохранялся
             oldTaskMapTime = oldTask.getStartTime();
         }
 
-        if (oldTaskMapTime != null) { // если у прошлого имеющегося таска нет времени, то поф идем дальше
+        if (oldTaskMapTime != null) {
             long checkOldDuration = oldTask.getDuration().toMinutes();
-            if (checkOldDuration == 0) { // проверяем менялось ли значение времени в новом
+            if (checkOldDuration == 0) {
 
                 if (timeTransferTask.equals(oldTaskMapTime)) {
                     return true;
@@ -296,27 +333,24 @@ public class InMemoryTaskManager implements TaskManager {
                 for (LocalDateTime forTime = timeTransferTask; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
                      forTime = forTime.plusMinutes(TIME_CONSTANT)) {
                     checkListTime.add(forTime);
-                } //собрали значения периодов от нового таска
+                }
 
                 timeEnd = oldTaskMapTime.plusMinutes(checkOldDuration);
 
                 for (LocalDateTime forTime = oldTaskMapTime; forTime.isBefore(timeEnd) || forTime.equals(timeEnd);
                      forTime = forTime.plusMinutes(TIME_CONSTANT)) {
                     checkListTime.remove(forTime);
-                } // убираем из листа с периодами уже занятые периоды старым таском. они нам и так доступны
+                }
 
                 for (LocalDateTime time : checkListTime) {
                     if (checkTableTimeOfPrioritized.contains(time)) {
                         return false;
                     }
-                } // если хоть один имеется, то выходим на отмену, так как время занято
+                }
             }
-
-            // task 5-7 .......  .....2-6..../....6-7task..../....7-8..../.....1-9...../...1-9task....
-            return true; // если все прошло успешно, то можно обновлять/добавлять
+            return true;
 
         } else {
-            // проверка только свободных значений для нового таска
             if (durationTransferTask == 0) {
                 return true;
             }
@@ -327,61 +361,37 @@ public class InMemoryTaskManager implements TaskManager {
                  forTime = forTime.plusMinutes(TIME_CONSTANT)) {
                 if (!checkTableTimeOfPrioritized.contains(forTime)) {
                     saveDuration = saveDuration + TIME_CONSTANT;
-                } // если уже есть значение, то не считаем его. если нет, то сохраняем в save
+                }
             }
-            if (saveDuration == durationTransferTask) { // если ниодного значения не занято, то будет равно
+            if (saveDuration == durationTransferTask) {
                 return true;
             }
             return false;
         }
     }
 
-    private void createTimeDurationToTableCheck() {
-        checkTableTimeOfPrioritized.clear();
-        LocalDateTime time;
-        long saveDuration;
-        LocalDateTime timeEnd;
-        for (Task task : sortPrioritizedTasks) {
-
-            time = task.getStartTime();
-            if (time == null) {
-                return;
-            }
-            saveDuration = task.getDuration().toMinutes();
-            if (saveDuration > 0) {
-                timeEnd = time.plusMinutes(saveDuration);
-                for (LocalDateTime forTime = time; forTime.isBefore(timeEnd);
-                     forTime = forTime.plusMinutes(TIME_CONSTANT)) {
-                    checkTableTimeOfPrioritized.add(forTime);
-                }
-            }
-        }
-    }
-
     @Override
     public void delIdTaskMap(int id) {
+        updateSetPrioritizedDelete(taskMap.get(id));
         taskMap.remove(id);
         inHistory.removeHistory(id);
-        updateSetPrioritized();
     }
 
     @Override
     public void delIdEpicMap(int id) {
         for (Integer idList : epicMap.get(id).getListSubtaskId()) {
+            updateSetPrioritizedDelete(subtaskMap.get(idList));
             subtaskMap.remove(idList);
             inHistory.removeHistory(idList);
         }
         epicMap.remove(id);
         inHistory.removeHistory(id);
-        updateSetPrioritized();
     }
 
     @Override
     public void delIdSubtaskMap(int id) {
+        updateSetPrioritizedDelete(subtaskMap.get(id));
         Subtask subtask = subtaskMap.remove(id);
-        if (subtask == null) {
-            return;
-        }
         Epic updateEpic = epicMap.get(subtask.getEpicId());
         ArrayList<Integer> listIds = updateEpic.getListSubtaskId();
         listIds.remove((Integer) id);
@@ -389,7 +399,6 @@ public class InMemoryTaskManager implements TaskManager {
         updateStatusEpic(updateEpic);
         updateTimeEpic(updateEpic);
         inHistory.removeHistory(id);
-        updateSetPrioritized();
     }
 
     @Override

@@ -155,6 +155,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 switch (task.getType()) {
                     case TASK:
                         fileBacked.taskMap.put(id, task);
+                        fileBacked.sortPrioritizedTasks.add(task);
                         break;
 
                     case EPIC:
@@ -163,6 +164,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
                     case SUBTASK:
                         fileBacked.subtaskMap.put(id, (Subtask) task);
+                        fileBacked.sortPrioritizedTasks.add(task);
                         break;
                 }
             }

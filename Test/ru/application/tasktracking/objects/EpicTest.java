@@ -20,7 +20,7 @@ class EpicTest {
     public void cerateMemory(){
         memoryTaskManager = new InMemoryTaskManager();
         epic1 = new Epic("#epicId1", "description", StatusTask.NEW);
-        createEpic = memoryTaskManager.creationEpic(epic1); //1
+        createEpic = memoryTaskManager.creationEpic(epic1);
     }
 
     private void createSubtask(StatusTask status1, StatusTask status2){
@@ -29,8 +29,8 @@ class EpicTest {
                 status1, createEpic);
         subtask2 = new Subtask("#sub2", "description",
                 status2, createEpic);
-        int sub1 = memoryTaskManager.creationSubtask(subtask1);
-        int sub2 = memoryTaskManager.creationSubtask(subtask2);
+        memoryTaskManager.creationSubtask(subtask1);
+        memoryTaskManager.creationSubtask(subtask2);
     }
 
     @Test

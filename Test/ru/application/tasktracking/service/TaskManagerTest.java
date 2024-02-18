@@ -292,8 +292,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
         listExpected.remove(1);
         assertEquals(listExpected, manager.getPrioritizedTasks(), "Сортировка по приоритету после удаления не совпадает");
 
-        System.out.println(manager.getPrioritizedTasks());
-
         Task taskError = new Task("TestNewTask", "TestDescription", StatusTask.NEW,
                 Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 0, 0));
         ManagerSaveException exceptionAddTaskSameTime = assertThrows(ManagerSaveException.class, () -> {
