@@ -1,6 +1,5 @@
 package ru.application.tasktracking.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
@@ -25,7 +24,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     Integer numberSubtaskNEW;
 
 
-    private void testesFillingInTasks() {
+    void testesFillingInTasks() {
         taskEmptyNEW = new Task("Test", "TestDescription", StatusTask.NEW);
         numberTaskNEW = manager.creationTask(taskEmptyNEW);
 

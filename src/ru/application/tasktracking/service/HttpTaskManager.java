@@ -4,7 +4,6 @@ import com.google.gson.*;
 import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
-import ru.application.tasktracking.servers.HttpTaskServer;
 import ru.application.tasktracking.servers.KVTaskClient;
 
 import java.util.ArrayList;
@@ -49,7 +48,6 @@ public class HttpTaskManager extends FileBackedTasksManager {
             kvTaskClient.put("data", gson.toJson(data));
             data.put("data", "data");
         }
-        loadFromServer();
     }
 
 

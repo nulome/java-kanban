@@ -1,7 +1,5 @@
 package ru.application.tasktracking.servers;
 
-import ru.application.tasktracking.objects.Task;
-import ru.application.tasktracking.service.StatusTask;
 
 import java.io.IOException;
 import java.net.URI;

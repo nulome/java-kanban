@@ -1,11 +1,8 @@
 package ru.application.tasktracking;
 
 
-import ru.application.tasktracking.objects.Task;
 import ru.application.tasktracking.servers.HttpTaskServer;
-import ru.application.tasktracking.service.HttpTaskManager;
 import ru.application.tasktracking.servers.KVServer;
-import ru.application.tasktracking.service.StatusTask;
 
 import java.io.IOException;
 
@@ -15,6 +12,9 @@ public class Main {
 
         /**
         Привет, Патимат!
+
+         - пока что не почистил комментарии.
+         - не совсем понял, как проверять загрузку с сервера в тестах, если бы уже были данные на нем.
 */
 
         new KVServer().start();
@@ -22,10 +22,6 @@ public class Main {
         HttpTaskServer httpTaskServer = new HttpTaskServer();
         httpTaskServer.start();
         //httpTaskServer.stop();
-
-
-
-
 
     }
 }
