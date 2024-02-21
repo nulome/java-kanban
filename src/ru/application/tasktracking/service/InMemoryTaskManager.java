@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Integer, Subtask> subtaskMap = new HashMap<>();
     protected TreeSet<Task> sortPrioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime,
             Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getUniqueId));
-    private final HashSet<LocalDateTime> checkTableTimeOfPrioritized = new HashSet<>();
+    protected final HashSet<LocalDateTime> checkTableTimeOfPrioritized = new HashSet<>();
     static final long TIME_CONSTANT = 15;
 
 
@@ -51,6 +51,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void setSubtaskMap(HashMap<Integer, Subtask> subtaskMap) {
         this.subtaskMap = subtaskMap;
+    }
+
+    public void setSortPrioritizedTasks(TreeSet<Task> sortPrioritizedTasks) {
+        this.sortPrioritizedTasks = sortPrioritizedTasks;
     }
 
     @Override

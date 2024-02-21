@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,16 +18,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final Path saveFile;
+    private final String saveFile;
 
-    public FileBackedTasksManager(Path file) {
+    public FileBackedTasksManager(String file) {
         this.saveFile = file;
     }
 
     static final DateTimeFormatter formater = DateTimeFormatter.ofPattern("dd.MM.yyyy..HH:mm");
 
-    private void save() {
-        try (Writer fileWriter = new FileWriter(String.valueOf(saveFile.getFileName()))) {
+    protected void save() {
+        try (Writer fileWriter = new FileWriter(saveFile)) {
 
             fileWriter.write("id,type,name,status,description,duration,startTime,epic\n");
 
@@ -46,7 +47,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Не удается сохранить в файл" + saveFile.getFileName(), e);
+            throw new ManagerSaveException("Не удается сохранить в файл" + Paths.get(saveFile).getFileName(), e);
         }
     }
 
@@ -57,7 +58,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 .append(",").append(task.getStatus()).append(",").append(task.getDescription()).append(",")
                 .append(task.getDuration().toMinutes()).append(",");
 
-        if(task.getStartTime() == null) {
+        if (task.getStartTime() == null) {
             sb.append("null,");
         } else {
             sb.append(task.getStartTime().format(formater)).append(",");
@@ -80,7 +81,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         final String descriptionTask = stringTask[4];
         final Duration duration = Duration.ofMinutes(Integer.parseInt(stringTask[5]));
         final LocalDateTime startTime;
-        if(stringTask[6].equals("null")){
+        if (stringTask[6].equals("null")) {
             startTime = null;
         } else {
             startTime = LocalDateTime.parse(stringTask[6], formater);
@@ -129,12 +130,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-    public static FileBackedTasksManager loadFromFile(Path file) {
+    protected static FileBackedTasksManager loadFromFile(String file) {
 
         FileBackedTasksManager fileBacked = new FileBackedTasksManager(file);
 
         try {
-            String strData = Files.readString(Path.of(file.toUri()));
+            Path stringToFile = Paths.get(file);
+            String strData = Files.readString(Path.of(stringToFile.toUri()));
             String[] stringsTask = strData.split("\n");
             List<Integer> history = Collections.emptyList();
             int saveMaxId = 0;
@@ -171,7 +173,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             for (Subtask subtask : fileBacked.subtaskMap.values()) {
                 ArrayList<Integer> listEpicId = fileBacked.epicMap.get(subtask.getEpicId()).getListSubtaskId();
-                listEpicId.add(subtask.getEpicId());
+                listEpicId.add(subtask.getUniqueId());
             }
 
             for (Integer taskId : history) {

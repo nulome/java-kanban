@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTest extends TaskManagerTest<FileBackedTasksManager> {
 
-    private final Path testNullFile = Paths.get("FileNull.csv");
+    private final String testNullFile = "Test/resources/FileNull.csv";
 
     @BeforeEach
     public void createManager() {
@@ -25,7 +25,7 @@ public class FileBackedTest extends TaskManagerTest<FileBackedTasksManager> {
     @Test
     void checkingWorkPreservationAndRestorationOfState() {
 
-        final Path testSaveLoadManager = Paths.get("TestSaveLoadManager.csv");
+        final String testSaveLoadManager = "Test/resources/TestSaveLoadManager.csv";
         FileBackedTasksManager fileManager = new FileBackedTasksManager(testSaveLoadManager);
         Task task1 = new Task("Test", "TestDescription", StatusTask.NEW);
         Integer num1 = fileManager.creationTask(task1);
