@@ -7,12 +7,16 @@ import com.sun.net.httpserver.HttpServer;
 import ru.application.tasktracking.objects.Epic;
 import ru.application.tasktracking.objects.Subtask;
 import ru.application.tasktracking.objects.Task;
+import ru.application.tasktracking.service.FileBackedTasksManager;
 import ru.application.tasktracking.service.Managers;
+import ru.application.tasktracking.service.StatusTask;
 import ru.application.tasktracking.service.TaskManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -33,13 +37,23 @@ public class HttpTaskServer {
     }
 
 
-    public static void main(String[] args) throws IOException {
+   /* public static void main(String[] args) throws IOException {
         new KVServer().start();
         HttpTaskServer httpTaskServer = new HttpTaskServer();
         httpTaskServer.start();
         //httpTaskServer.stop();
 
-    }
+        *//*FileBackedTasksManager fw = new FileBackedTasksManager("src/ru/application/tasktracking/resources/Tasks.csv");
+        Integer checkEpic = fw.creationEpic(new Epic("TestNewEpic", "TestDescription", StatusTask.NEW));
+        Subtask checkSubtask = new Subtask("TestNewSubtask", "TestDescription", StatusTask.NEW,
+                Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 2, 0), checkEpic);
+
+        Integer integ = fw.creationSubtask(checkSubtask);
+        Subtask sub = fw.getSubtaskById(integ);
+        Gson gss = new Gson();
+        String stree = gss.toJson(sub);
+        System.out.println(stree);*//*
+    }*/
 
     class TaskHandler implements HttpHandler {
         @Override
@@ -88,6 +102,14 @@ public class HttpTaskServer {
                                 response = getEpicById(id);
                             }
                             break;
+                        /*case "/tasks/save/":
+                            response = "";
+
+                            break;
+                        case "/tasks/load/":
+                            response = "";
+
+                            break; */
                     }
 
 

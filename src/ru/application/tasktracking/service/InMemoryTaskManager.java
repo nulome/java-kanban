@@ -19,7 +19,7 @@ public class InMemoryTaskManager implements TaskManager {
     static final long TIME_CONSTANT = 15;
 
 
-    private int newId = 0;
+    protected int newId = 0;
 
     public HashMap<Integer, Task> getTaskMap() {
         return taskMap;
@@ -161,6 +161,9 @@ public class InMemoryTaskManager implements TaskManager {
 
             Epic updateEpic = epicMap.get(subtask.getEpicId());
             ArrayList<Integer> subtaskIds = updateEpic.getListSubtaskId();
+            if(updateEpic.getListSubtaskId() == null){
+                subtaskIds = new ArrayList<>();
+            }
             subtaskIds.add(subtask.getUniqueId());
             updateEpic.setListSubtaskId(subtaskIds);
 

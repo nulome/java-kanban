@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final String saveFile;
+    private final String saveFile; //src/ru/application/tasktracking/resources/Tasks.csv
 
     public FileBackedTasksManager(String file) {
         this.saveFile = file;
