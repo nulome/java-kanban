@@ -10,12 +10,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        /**
-        TODO Привет, Патимат!
-
-
-*/
-
         new KVServer().start();
 
         HttpTaskServer httpTaskServer = new HttpTaskServer();
