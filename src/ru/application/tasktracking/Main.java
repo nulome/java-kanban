@@ -11,10 +11,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         /**
-        Привет, Патимат!
+        TODO Привет, Патимат!
 
-         - пока что не почистил комментарии.
-         - не совсем понял, как проверять загрузку с сервера в тестах, если бы уже были данные на нем.
+
 */
 
         new KVServer().start();

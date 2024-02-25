@@ -17,20 +17,7 @@ public class KVTaskClient {
         API_TOKEN = register();
     }
 
-   /* public static void main(String[] args) throws IOException {
-
-        new KVServer().start();
-
-        KVTaskClient kvTaskClient = new KVTaskClient("http://localhost:8078/");
-        kvTaskClient.put("file2", "{tsk:tsk}");
-        System.out.println(kvTaskClient.load("file2"));
-
-        kvTaskClient.put("file2", "{tsk:tskadsssssssss}");
-        System.out.println(kvTaskClient.load("file2"));
-    }*/
-
     public void put(String key, String json) {
-        //POST /save/<ключ>?API_TOKEN=
         URI uri = URI.create(url + "save/" + key + "?API_TOKEN=" + API_TOKEN);
         HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
         HttpRequest request = HttpRequest.newBuilder()
@@ -49,7 +36,6 @@ public class KVTaskClient {
     }
 
     public String load(String key) {
-        //GET /load/<ключ>?API_TOKEN=
         URI uri = URI.create(url + "load/" + key + "?API_TOKEN=" + API_TOKEN);
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()

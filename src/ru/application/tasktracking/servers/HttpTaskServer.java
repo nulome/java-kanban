@@ -12,8 +12,10 @@ import ru.application.tasktracking.service.TaskManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 
+import static java.net.HttpURLConnection.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
@@ -33,23 +35,12 @@ public class HttpTaskServer {
     }
 
 
-   /* public static void main(String[] args) throws IOException {
-        new KVServer().start();
-        HttpTaskServer httpTaskServer = new HttpTaskServer();
-        httpTaskServer.start();
-        //httpTaskServer.stop();
+    public static void main(String[] args) throws IOException {
+        final HttpTaskServer server = new HttpTaskServer();
+        server.start();
+//      server.stop();
+    }
 
-        *//*FileBackedTasksManager fw = new FileBackedTasksManager("src/ru/application/tasktracking/resources/Tasks.csv");
-        Integer checkEpic = fw.creationEpic(new Epic("TestNewEpic", "TestDescription", StatusTask.NEW));
-        Subtask checkSubtask = new Subtask("TestNewSubtask", "TestDescription", StatusTask.NEW,
-                Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 2, 0), checkEpic);
-
-        Integer integ = fw.creationSubtask(checkSubtask);
-        Subtask sub = fw.getSubtaskById(integ);
-        Gson gss = new Gson();
-        String stree = gss.toJson(sub);
-        System.out.println(stree);*//*
-    }*/
 
     class TaskHandler implements HttpHandler {
         @Override
@@ -57,12 +48,10 @@ public class HttpTaskServer {
             try {
                 String method = httpExchange.getRequestMethod();
                 String uri = httpExchange.getRequestURI().getPath();
-                //System.out.println(uri); // "/tasks"
                 String parameter = httpExchange.getRequestURI().getQuery();
-                //System.out.println(parameter); // "/tasks"
 
                 String response = "";
-                if (method.equals("GET")) {  // switch внутри switch почему то не корретно работает.
+                if (method.equals("GET")) {
                     switch (uri) {
                         case "/tasks/history":
                             response = getHistory();
@@ -98,14 +87,6 @@ public class HttpTaskServer {
                                 response = getEpicById(id);
                             }
                             break;
-                        /*case "/tasks/save/":
-                            response = "";
-
-                            break;
-                        case "/tasks/load/":
-                            response = "";
-
-                            break; */
                     }
 
 
@@ -140,6 +121,7 @@ public class HttpTaskServer {
                             break;
 
                     }
+
                 } else if (method.equals("DELETE")) {
                     switch (uri) {
                         case "/tasks/task/":
@@ -169,23 +151,16 @@ public class HttpTaskServer {
                             }
                             response = "Удаление выполнено успешно.";
                             break;
-
                     }
-
-
                 }
 
                 if (response.isBlank()) {
-                    httpExchange.sendResponseHeaders(400, 0);
                     response = "Вы использовали какой-то другой метод!";
-                } else {
-                    httpExchange.sendResponseHeaders(200, 0);
+                    sendText(httpExchange, response, HTTP_BAD_METHOD);
                 }
 
+                sendText(httpExchange, response, HTTP_OK);
 
-                try (OutputStream os = httpExchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
             } catch (Exception exception) {
                 exception.printStackTrace();
             } finally {
@@ -311,10 +286,10 @@ public class HttpTaskServer {
         return new String(h.getRequestBody().readAllBytes(), UTF_8);
     }
 
-    private static void sendText(HttpExchange h, String text) throws IOException {
+    private static void sendText(HttpExchange h, String text, int connect) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json");
-        h.sendResponseHeaders(200, resp.length);
+        h.sendResponseHeaders(connect, resp.length);
         h.getResponseBody().write(resp);
     }
 

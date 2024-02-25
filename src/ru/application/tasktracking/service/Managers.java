@@ -11,7 +11,7 @@ public final class Managers {
     }
 
     public static TaskManager getHttpTasksManager(String url) {
-        return new HttpTaskManager(url);
+        return new HttpTaskManager(url, false);
     }
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();

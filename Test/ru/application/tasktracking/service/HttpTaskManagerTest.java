@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.net.HttpURLConnection.HTTP_BAD_METHOD;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
@@ -34,13 +36,13 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @BeforeEach
     public void createManager() throws IOException {
-        manager = new HttpTaskManager(urlServer);
+        manager = new HttpTaskManager(urlServer, false);
         httpTaskServer = new HttpTaskServer();
         httpTaskServer.start();
     }
 
 
-//del/-tasks/task/--/tasks/epic/--/tasks/subtask/-
+
     @Test
     void testEndpoint() throws IOException, InterruptedException {
         URI uri = URI.create("http://localhost:8080/tasksslo");
@@ -49,11 +51,11 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         System.out.println("Тело ответа: " + response.body());
         System.out.println("Код ответа: " + response.statusCode());
 
-        assertEquals(400, response.statusCode(), "Неверная обрботка не подтверждена");
+        assertEquals(HTTP_BAD_METHOD, response.statusCode(), "Неверная обрботка не подтверждена");
 
         uri = URI.create("http://localhost:8080/tasks/");
         response = requestGet(uri);
-        assertEquals(200, response.statusCode(), "Верная обработка с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Верная обработка с ошибкой");
         assertEquals("[]", response.body(), "Данные на сервере не пусты");
 
         taskEmptyNEW = new Task("Test", "TestDescription", StatusTask.NEW);
@@ -64,28 +66,28 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         String gsonTaskStr = gson.toJson(taskEmptyNEW);
         uri = URI.create("http://localhost:8080/tasks/task/");
         response = requestPost(uri, gsonTaskStr);
-        assertEquals(200, response.statusCode(), "Верная обработка с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Верная обработка с ошибкой");
 
         gsonTaskStr = gson.toJson(epicEmptyNEW);
         uri = URI.create("http://localhost:8080/tasks/epic/");
         response = requestPost(uri, gsonTaskStr);
-        assertEquals(200, response.statusCode(), "Верная обработка с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Верная обработка с ошибкой");
 
         gsonTaskStr = gson.toJson(subtaskNEWToEpicEmpty);
         uri = URI.create("http://localhost:8080/tasks/subtask/");
         response = requestPost(uri, gsonTaskStr);
-        assertEquals(200, response.statusCode(), "Верная обработка с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Верная обработка с ошибкой");
 
         gsonTaskStr = gson.toJson(new Subtask("Test", "TestDescription", StatusTask.NEW, 3,
                 Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 2, 0),2));
         uri = URI.create("http://localhost:8080/tasks/subtask/");
         response = requestPost(uri, gsonTaskStr);
-        assertEquals(200, response.statusCode(), "Обновление задачи с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Обновление задачи с ошибкой");
 
 
         uri = URI.create("http://localhost:8080/tasks/task/?id=1");
         response = requestGet(uri);
-        assertEquals(200, response.statusCode(), "Получение задачи по id с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Получение задачи по id с ошибкой");
         String bodyTaskStr = response.body();
         taskEmptyNEW.setUniqueId(1);
         gsonTaskStr = gson.toJson(taskEmptyNEW);
@@ -93,11 +95,11 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
         uri = URI.create("http://localhost:8080/tasks/subtask/?id=3");
         response = requestGet(uri);
-        assertEquals(200, response.statusCode(), "Получение задачи по id с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Получение задачи по id с ошибкой");
 
         uri = URI.create("http://localhost:8080/tasks/subtask/epic?id=2");
         response = requestGet(uri);
-        assertEquals(200, response.statusCode(), "Получение подзадач от эпика по id с ошибкой");
+        assertEquals(HTTP_OK, response.statusCode(), "Получение подзадач от эпика по id с ошибкой");
         bodyTaskStr = response.body();
         ArrayList listBody = gson.fromJson(bodyTaskStr, ArrayList.class);
         // есть способ перевода листа объектов из gson сразу в объекты?
